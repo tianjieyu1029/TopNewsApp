@@ -8,7 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bwie.test.topnewsapp.R;
-import com.bwie.test.topnewsapp.beans.ContentDB;
+import com.bwie.test.topnewsapp.beans.SQLiteContent;
 import com.bwie.test.topnewsapp.utils.MyXUtils;
 
 import java.util.ArrayList;
@@ -18,9 +18,9 @@ import java.util.ArrayList;
  */
 
 public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.MyViewHolder> {
-    private ArrayList<ContentDB> list;
+    private ArrayList<SQLiteContent> list;
 
-    public MyRecyclerAdapter(ArrayList<ContentDB> list) {
+    public MyRecyclerAdapter(ArrayList<SQLiteContent> list) {
         this.list = list;
     }
 
@@ -36,7 +36,7 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.My
     public void onBindViewHolder(final MyRecyclerAdapter.MyViewHolder holder, int position) {
         holder.textView1.setText(list.get(position).getTitle());
         holder.textView2.setText(list.get(position).getAuthor_name());
-        MyXUtils.imageXUtils(holder.imageView,list.get(position).getThumbnail_pic_s(),false);
+        MyXUtils.imageXUtils(holder.imageView,list.get(position).getPic(),false);
         if(mOnItemClickListener != null){
             //为ItemView设置监听器
             holder.itemView.setOnClickListener(new View.OnClickListener() {

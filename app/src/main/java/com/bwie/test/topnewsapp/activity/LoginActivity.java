@@ -1,6 +1,7 @@
 package com.bwie.test.topnewsapp.activity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -29,6 +30,17 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         initView();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences preferences = getSharedPreferences("config", MODE_PRIVATE);
+        boolean aBoolean = preferences.getBoolean("flag", false);
+        if (aBoolean){
+            finish();
+        }
     }
 
     private void initView() {

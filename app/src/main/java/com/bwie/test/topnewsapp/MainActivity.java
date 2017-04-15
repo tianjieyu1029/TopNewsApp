@@ -1,6 +1,10 @@
 package com.bwie.test.topnewsapp;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,18 +13,19 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.blankj.utilcode.util.NetworkUtils;
 import com.bwie.test.topnewsapp.adapters.MyIndicatorAdapter;
 import com.bwie.test.topnewsapp.adapters.MyViewPagerAdapter;
-import com.bwie.test.topnewsapp.beans.NewsBean;
+import com.bwie.test.topnewsapp.beans.SQLiteTitle;
 import com.bwie.test.topnewsapp.beans.TitleBean;
-import com.bwie.test.topnewsapp.beans.TitleDB;
 import com.bwie.test.topnewsapp.beans.UserBean;
 import com.bwie.test.topnewsapp.fragments.FragmentModel;
 import com.bwie.test.topnewsapp.fragments.LeftFragment;
 import com.bwie.test.topnewsapp.utils.GsonUtils;
 import com.bwie.test.topnewsapp.utils.ImmersionStatusBar;
+import com.bwie.test.topnewsapp.utils.MySQLiteOpenHelper;
 import com.bwie.test.topnewsapp.utils.MyXUtils;
 import com.bwie.test.topnewsapp.utils.Night_styleutils;
 import com.bwie.test.topnewsapp.utils.URLUtils;
@@ -47,6 +52,10 @@ public class MainActivity extends SlidingFragmentActivity {
     private ViewPager viewPager;
     private CommonNavigator mCommonNavigator;
     private SlidingMenu menu;
+    private RelativeLayout layout;
+    private SharedPreferences.Editor edit;
+    private boolean flag;
+    private SQLiteDatabase database;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -56,15 +65,26 @@ public class MainActivity extends SlidingFragmentActivity {
         ImmersionStatusBar.setStatusBar(this,Color.parseColor("#CE2E2A"));
 
         initView();
-        initDB();
+        MySQLiteOpenHelper helper = new MySQLiteOpenHelper(MainActivity.this);
+        database = helper.getWritableDatabase();
+        //initDB();
         initSlidingMenu();
         boolean connected = NetworkUtils.isConnected();
-        if (connected){
-            initData();
-            Log.d("走没走？", "onCreate: ");
-         }
 
+        SharedPreferences preferences = getSharedPreferences("http", MODE_PRIVATE);
+        edit = preferences.edit();
+        flag = preferences.getBoolean("first", false);
+        if (flag){
+            readDatabase();
+        }else {
+            if (connected){
+                initData();
+                Log.d("走没走？", "onCreate: ");
+            }
+        }
     }
+
+
     public void reload() {
         Intent intent = getIntent();
         overridePendingTransition(R.anim.activity_in, R.anim.activity_out);//进入动画
@@ -99,21 +119,39 @@ public class MainActivity extends SlidingFragmentActivity {
     }
 
     private void readDatabase() {
-        TitleDB titles = new TitleDB();
+       /* TitleDB titles = new TitleDB();
         DbManager dbManager = MyXUtils.dataBaseXUtils("TopNews.db", 1);
         try {
             ArrayList<TitleDB> titleDB = (ArrayList<TitleDB>) titles.getTitleDB(dbManager);
             ArrayList<NewsBean> list = new ArrayList<>();
             ArrayList<String> stringList = new ArrayList<>();
             for (int i=0;i<titleDB.size();i++){
-               list.add(new NewsBean(titleDB.get(i).getTitle(),titleDB.get(i).getUri()));
+                list.add(new NewsBean(titleDB.get(i).getTitle(),titleDB.get(i).getUri()));
                 stringList.add(titleDB.get(i).getTitle());
             }
             initIndicator(stringList);
             initFragment(list);
         } catch (DbException e) {
             e.printStackTrace();
+        }*/
+        //MySQLiteOpenHelper helper = new MySQLiteOpenHelper(this);
+        //SQLiteDatabase database = helper.getWritableDatabase();
+        //String query = "select * from title where state=0";
+        Cursor cursor = database.query(
+                "title", null, "state=?", new String[]{"0"}, null, null, null);
+        //titleName text,uri text,state Integer
+        ArrayList<SQLiteTitle> list = new ArrayList<>();
+        while (cursor.moveToNext()){
+            String titleName = cursor.getString(cursor.getColumnIndex("titleName"));
+            String uri = cursor.getString(cursor.getColumnIndex("uri"));
+            String state = cursor.getString(cursor.getColumnIndex("state"));
+            SQLiteTitle titles = new SQLiteTitle(titleName,uri,state);
+            list.add(titles);
         }
+        Log.d("title---->", "readDatabase: "+list.size());
+        initIndicator(list);
+        initFragment(list);
+        database.close();
     }
     //侧滑
     private void initSlidingMenu() {
@@ -167,20 +205,29 @@ public class MainActivity extends SlidingFragmentActivity {
         });
     }
     //指示器
-    private void initIndicator(ArrayList<String> list) {
-        magic_indicator.setBackgroundColor(Color.parseColor("#ffffff"));
+    private void initIndicator(ArrayList<SQLiteTitle> list) {
+        if (theme ==1){
+            magic_indicator.setBackgroundColor(Color.parseColor("#ffffff"));
+        }
+        if (theme==2){
+            magic_indicator.setBackgroundColor(Color.parseColor("#000000"));
+        }
+        ArrayList<String> strings = new ArrayList<>();
+        for (int i = 0;i<list.size();i++){
+            strings.add(list.get(i).getTitleName());
+        }
         mCommonNavigator = new CommonNavigator(this);
         mCommonNavigator.setSkimOver(true);
-        MyIndicatorAdapter adapter = new MyIndicatorAdapter(list,viewPager);
+        MyIndicatorAdapter adapter = new MyIndicatorAdapter(strings,viewPager);
         mCommonNavigator.setAdapter(adapter);
         magic_indicator.setNavigator(mCommonNavigator);
         ViewPagerHelper.bind(magic_indicator, viewPager);
     }
     //添加fragment
-    private void initFragment(ArrayList<NewsBean> list) {
+    private void initFragment(ArrayList<SQLiteTitle> list) {
         ArrayList<Fragment> fragList = new ArrayList<>();
         for (int i =0;i<list.size();i++){
-            FragmentModel fragmentModel = FragmentModel.newInstance(list.get(i).getKey(),list.get(i).getTitle());
+            FragmentModel fragmentModel = FragmentModel.newInstance(list.get(i).getUri(),list.get(i).getTitleName());
             fragList.add(fragmentModel);
         }
         MyViewPagerAdapter pagerAdapter = new MyViewPagerAdapter(getSupportFragmentManager(), fragList);
@@ -188,14 +235,26 @@ public class MainActivity extends SlidingFragmentActivity {
     }
     //请求数据
     private void initData() {
-        new MyXUtils().httpXUtilsPOST(URLUtils.URL_TITLE, "uri", "news", new MyXUtils.MyHttpCallback() {
+        new MyXUtils().httpXUtilsPOST(URLUtils.URL_TITLE,
+                "uri", "news", new MyXUtils.MyHttpCallback() {
             @Override
             public void onSuccess(String result) {
                 Log.d("这里呢？", "onSuccess: "+result);
                 TitleBean titleBean = GsonUtils.gsonToBean(result, TitleBean.class);
                 ArrayList<TitleBean.ResultBean.DateBean> date = (ArrayList<TitleBean.ResultBean.DateBean>) titleBean.getResult().getDate();
                 Log.d("有没有？", "onSuccess: "+date.toString());
-                DbManager dbManager = MyXUtils.dataBaseXUtils("TopNews.db", 1);
+                //titleName text,uri text,state Integer
+                ContentValues values = new ContentValues();
+                for (int i=0;i<date.size();i++){
+
+                    values.put("titleName",date.get(i).getTitle());
+                    values.put("uri",date.get(i).getUri());
+                    values.put("state",date.get(i).getId()%2 + "");
+                    database.insert("title",null,values);
+                }
+                edit.putBoolean("first",true);
+                edit.commit();
+              /*  DbManager dbManager = MyXUtils.dataBaseXUtils("TopNews.db", 1);
                 try {
                     dbManager.dropDb();
                 } catch (DbException e) {
@@ -211,7 +270,7 @@ public class MainActivity extends SlidingFragmentActivity {
                     } catch (DbException e) {
                         e.printStackTrace();
                     }
-                }
+                }*/
             }
 
             @Override
@@ -228,6 +287,7 @@ public class MainActivity extends SlidingFragmentActivity {
     }
 
     private void initView() {
+        layout = (RelativeLayout) findViewById(R.id.main_title);
         mine_image = (ImageView) findViewById(R.id.mine_image);
         title_layout = (LinearLayout) findViewById(R.id.title_layout);
         search_image = (ImageView) findViewById(R.id.search_image);

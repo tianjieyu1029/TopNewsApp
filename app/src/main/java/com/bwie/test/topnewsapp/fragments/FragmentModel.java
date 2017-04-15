@@ -1,6 +1,9 @@
 package com.bwie.test.topnewsapp.fragments;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -13,14 +16,12 @@ import android.view.ViewGroup;
 import com.bwie.test.topnewsapp.NextActivity;
 import com.bwie.test.topnewsapp.R;
 import com.bwie.test.topnewsapp.adapters.MyRecyclerAdapter;
-import com.bwie.test.topnewsapp.beans.ContentDB;
 import com.bwie.test.topnewsapp.beans.JsonBean;
+import com.bwie.test.topnewsapp.beans.SQLiteContent;
 import com.bwie.test.topnewsapp.utils.GsonUtils;
+import com.bwie.test.topnewsapp.utils.MySQLiteOpenHelper;
 import com.bwie.test.topnewsapp.utils.MyXUtils;
 import com.bwie.test.topnewsapp.utils.URLUtils;
-
-import org.xutils.DbManager;
-import org.xutils.ex.DbException;
 
 import java.util.ArrayList;
 
@@ -34,6 +35,7 @@ public class FragmentModel extends Fragment {
     private static String path;
     private RecyclerView recycleView;
     private String title;
+    private SQLiteDatabase database;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,6 +57,8 @@ public class FragmentModel extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        MySQLiteOpenHelper helper = new MySQLiteOpenHelper(getActivity());
+        database = helper.getWritableDatabase();
         initData();
     }
 
@@ -64,7 +68,21 @@ public class FragmentModel extends Fragment {
             public void onSuccess(String result) {
                 JsonBean jsonBean = GsonUtils.gsonToBean(result, JsonBean.class);
                 ArrayList<JsonBean.ResultBean.DataBean> data = (ArrayList<JsonBean.ResultBean.DataBean>) jsonBean.getResult().getData();
-                DbManager dbManager = MyXUtils.dataBaseXUtils("TopNews.db", 1);
+               /* MySQLiteOpenHelper helper = new MySQLiteOpenHelper(getActivity());
+                SQLiteDatabase database = helper.getWritableDatabase();*/
+                ContentValues values = new ContentValues();
+                for (int i = 0; i < data.size(); i++) {
+                    //title text,pic text,url text,date text,category text,author_name text
+                    values.put("title", data.get(i).getTitle());
+                    values.put("pic", data.get(i).getThumbnail_pic_s());
+                    values.put("url", data.get(i).getUrl());
+                    values.put("date", data.get(i).getDate());
+                    values.put("category", data.get(i).getCategory());
+                    values.put("author_name", data.get(i).getAuthor_name());
+
+                    database.insert("content", null, values);
+                }
+                /* DbManager dbManager = MyXUtils.dataBaseXUtils("TopNews.db", 1);
                 try {
                     dbManager.dropDb();
                 } catch (DbException e) {
@@ -83,7 +101,7 @@ public class FragmentModel extends Fragment {
                     } catch (DbException e) {
                         e.printStackTrace();
                     }
-                }
+                }*/
 
             }
 
@@ -100,7 +118,7 @@ public class FragmentModel extends Fragment {
     }
 
     private void readDatabase() {
-        ContentDB content = new ContentDB();
+        /*ContentDB content = new ContentDB();
         DbManager dbManager = MyXUtils.dataBaseXUtils("TopNews.db", 1);
         try {
             ArrayList<ContentDB> list = (ArrayList<ContentDB>) content.getContent(dbManager);
@@ -109,37 +127,67 @@ public class FragmentModel extends Fragment {
                 if (list.get(i).getCategory().equals(title)){
                     contentDBs.add(list.get(i));
                 }
-            }
+            }*/
 
-            MyRecyclerAdapter adapter = new MyRecyclerAdapter(contentDBs);
-            LinearLayoutManager manager = new LinearLayoutManager(getContext());
-            recycleView.setLayoutManager(manager);
-            recycleView.setAdapter(adapter);
-            adapter.setmOnItemClickListener(new MyRecyclerAdapter.OnItemClickListener() {
-                @Override
-                public void onItemClick(View view, int position) {
-                    Intent intent = new Intent(getActivity(), NextActivity.class);
-                    intent.putExtra("url", contentDBs.get(position).getUrl());
-                    getActivity().startActivity(intent);
-                }
-            });
-
-        } catch (DbException e) {
-            e.printStackTrace();
+        Cursor cursor = database.query("content", null, null, null, null, null, null);
+        final ArrayList<SQLiteContent> list = new ArrayList<>();
+        while (cursor.moveToNext()) {
+            //title text,pic text,url text,date text,category text,author_name text
+            String title = cursor.getString(cursor.getColumnIndex("title"));
+            String pic = cursor.getString(cursor.getColumnIndex("pic"));
+            String author_name = cursor.getString(cursor.getColumnIndex("author_name"));
+            String url = cursor.getString(cursor.getColumnIndex("url"));
+            String category = cursor.getString(cursor.getColumnIndex("category"));
+            SQLiteContent content = new SQLiteContent();
+            content.setPic(pic);
+            content.setCategory(category);
+            content.setAuthor_name(author_name);
+            content.setTitle(title);
+            content.setUrl(url);
+            list.add(content);
         }
+        final ArrayList<SQLiteContent> conList = new ArrayList<>();
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getCategory().equals(title)) {
+                conList.add(list.get(i));
+            }
+        }
+
+
+        MyRecyclerAdapter adapter = new MyRecyclerAdapter(conList);
+        LinearLayoutManager manager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+
+        recycleView.setLayoutManager(manager);
+        recycleView.setAdapter(adapter);
+        adapter.setmOnItemClickListener(new MyRecyclerAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Intent intent = new Intent(getActivity(), NextActivity.class);
+                intent.putExtra("url", conList.get(position).getUrl());
+                getActivity().startActivity(intent);
+            }
+        });
+        database.close();
     }
 
     private void initView(View view) {
         recycleView = (RecyclerView) view.findViewById(R.id.recycleView);
+        ArrayList<SQLiteContent> arrayList = new ArrayList<>();
+        MyRecyclerAdapter notAdapter = new MyRecyclerAdapter(arrayList);
+        LinearLayoutManager notManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+
+        recycleView.setLayoutManager(notManager);
+        recycleView.setAdapter(notAdapter);
+
 
     }
-    public static FragmentModel newInstance(String url,String title){
+
+    public static FragmentModel newInstance(String url, String title) {
         Bundle bundle = new Bundle();
-        bundle.putString("url",url);
-        bundle.putString("title",title);
+        bundle.putString("url", url);
+        bundle.putString("title", title);
         FragmentModel fragmentModel = new FragmentModel();
         fragmentModel.setArguments(bundle);
-        path = url;
         return fragmentModel;
     }
 

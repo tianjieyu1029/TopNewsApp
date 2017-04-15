@@ -1,5 +1,7 @@
 package com.bwie.test.topnewsapp;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,6 +19,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bwie.test.topnewsapp.adapters.OtherAdapter;
+import com.bwie.test.topnewsapp.beans.SQLiteTitle;
+import com.bwie.test.topnewsapp.utils.MySQLiteOpenHelper;
 import com.bwie.test.topnewsapp.views.MyGridView;
 
 import java.util.ArrayList;
@@ -38,6 +42,15 @@ public class TitleActivity extends AppCompatActivity implements OnItemClickListe
     public void initView() {
         mUserGv = (MyGridView) findViewById(R.id.userGridView);
         mOtherGv = (MyGridView) findViewById(R.id.otherGridView);
+        MySQLiteOpenHelper helper = new MySQLiteOpenHelper(this);
+        SQLiteDatabase database = helper.getWritableDatabase();
+        Cursor cursor = database.query("title", null, null, null, null, null, null);
+        while (cursor.moveToNext()){
+            String titleName = cursor.getString(cursor.getColumnIndex("titleName"));
+            String uri = cursor.getString(cursor.getColumnIndex("uri"));
+            String state = cursor.getString(cursor.getColumnIndex("state"));
+            SQLiteTitle titles = new SQLiteTitle(titleName,uri,state);
+        }
         mUserList.add("推荐");
         mUserList.add("热点");
         mUserList.add("上海");
@@ -149,7 +162,7 @@ public class TitleActivity extends AppCompatActivity implements OnItemClickListe
             }
 
             @Override
-            public void onAnimationRepeat(Animation animation) {
+            public void onAnimationRepeat(Animation  animation) {
             }
 
             @Override

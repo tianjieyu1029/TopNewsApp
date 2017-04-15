@@ -2,6 +2,7 @@ package com.bwie.test.topnewsapp.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.RelativeLayout;
 
@@ -23,7 +24,9 @@ public class UserAgreementActivity extends AppCompatActivity {
     }
 
     private void initData() {
-        web_agreement_phone_register.loadUrl("www.baidu.com");
+        WebSettings settings = web_agreement_phone_register.getSettings();
+        settings.setJavaScriptEnabled(true);
+        web_agreement_phone_register.loadUrl("http://mp.toutiao.com/agreement/");
     }
 
     private void initView() {

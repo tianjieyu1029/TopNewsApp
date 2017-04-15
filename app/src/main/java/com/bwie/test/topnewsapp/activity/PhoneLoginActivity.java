@@ -33,7 +33,6 @@ public class PhoneLoginActivity extends AppCompatActivity implements View.OnClic
         setContentView(R.layout.activity_login_phone);
         initView();
 
-
     }
 
 
@@ -62,6 +61,11 @@ public class PhoneLoginActivity extends AppCompatActivity implements View.OnClic
         btn_login_phone_login.setOnClickListener(this);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+    }
 
     @Override
     public void onClick(View v) {

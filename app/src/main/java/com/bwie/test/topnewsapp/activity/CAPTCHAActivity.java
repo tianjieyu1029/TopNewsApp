@@ -29,9 +29,9 @@ public class CAPTCHAActivity extends AppCompatActivity implements View.OnClickLi
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            if (msg.what == 1)
+           /* if (msg.what == 1)
                 Toast.makeText(CAPTCHAActivity.this, "回调完成", Toast.LENGTH_SHORT).show();
-            else if (msg.what == 2)
+            else*/ if (msg.what == 2)
                 Toast.makeText(CAPTCHAActivity.this, "提交验证码成功", Toast.LENGTH_SHORT).show();
             else if (msg.what == 3)
                 Toast.makeText(CAPTCHAActivity.this, "获取验证码成功", Toast.LENGTH_SHORT).show();

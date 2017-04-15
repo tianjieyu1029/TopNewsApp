@@ -1,6 +1,7 @@
 package com.bwie.test.topnewsapp.activity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -23,6 +24,7 @@ public class UserInfoSetActivity extends AppCompatActivity {
     private XCRoundImageView iv_protrait_user_info_set_;
     private EditText et_name_user_info_set;
     private int theme = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Night_styleutils.changeStyle(this, theme, savedInstanceState);
@@ -30,17 +32,23 @@ public class UserInfoSetActivity extends AppCompatActivity {
         setContentView(R.layout.activity_user_info_set);
         initView();
         setImage();
-        initData();
+        setLoginState();
     }
 
-    private void initData() {
+    private void setLoginState() {
+        SharedPreferences preferences = getSharedPreferences("config", MODE_PRIVATE);
+        final SharedPreferences.Editor edit = preferences.edit();
         tv_right_include_head_login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 submit();
+                edit.putBoolean("flag",true);
+                edit.commit();
+                finish();
             }
         });
     }
+
 
     private void initView() {
         iv_back_include_head_login = (ImageView) findViewById(R.id.iv_back_include_head_login);
@@ -57,15 +65,12 @@ public class UserInfoSetActivity extends AppCompatActivity {
         tv_right_include_head_login.setText("完成");
         iv_protrait_user_info_set_ = (XCRoundImageView) findViewById(R.id.iv_protrait_user_info_set_);
         et_name_user_info_set = (EditText) findViewById(R.id.et_name_user_info_set);
-        tv_right_include_head_login.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-            }
-        });
     }
+
+
     //设置头像
-    private void setImage(){
+    private void setImage() {
         iv_protrait_user_info_set_.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -78,7 +83,7 @@ public class UserInfoSetActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        ProtraitUtils.getBackPhone(UserInfoSetActivity.this,requestCode,resultCode,data,iv_protrait_user_info_set_);
+        ProtraitUtils.getBackPhone(UserInfoSetActivity.this, requestCode, resultCode, data, iv_protrait_user_info_set_);
     }
 
     private void submit() {

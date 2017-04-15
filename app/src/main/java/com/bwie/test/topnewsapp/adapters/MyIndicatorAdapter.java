@@ -34,8 +34,11 @@ public class MyIndicatorAdapter extends CommonNavigatorAdapter {
     public IPagerTitleView getTitleView(Context context, final int index) {
         ClipPagerTitleView clipPagerTitleView = new ClipPagerTitleView(context);
         clipPagerTitleView.setText(list.get(index));
+
         clipPagerTitleView.setTextColor(Color.GRAY);
         clipPagerTitleView.setClipColor(Color.RED);
+
+
         clipPagerTitleView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

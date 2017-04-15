@@ -17,7 +17,7 @@ import com.blankj.utilcode.util.RegexUtils;
 import com.bwie.test.topnewsapp.R;
 import com.bwie.test.topnewsapp.utils.Night_styleutils;
 
-public class PhoneRegisterActivity extends AppCompatActivity implements View.OnClickListener {
+public class PhoneRegisterActivity extends AppCompatActivity {
 
 
     private ImageView iv_back_include_head_login;
@@ -28,6 +28,8 @@ public class PhoneRegisterActivity extends AppCompatActivity implements View.OnC
     private TextView tv_agreement_phone_register;
     private Button btn_login_phone_register;
     private int theme = 0;
+    private boolean flag;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Night_styleutils.changeStyle(this, theme, savedInstanceState);
@@ -49,40 +51,46 @@ public class PhoneRegisterActivity extends AppCompatActivity implements View.OnC
         tv_back_include_head_login = (TextView) findViewById(R.id.tv_back_include_head_login);
         tv_back_include_head_login.setText("手机号注册");
         tv_right_include_head_login = (TextView) findViewById(R.id.tv_right_include_head_login);
-        tv_right_include_head_login.setOnClickListener(this);
         et_number_phone_register = (EditText) findViewById(R.id.et_number_phone_register);
-        et_number_phone_register.setOnClickListener(this);
         check_yes_phone_register = (CheckBox) findViewById(R.id.check_yes_phone_register);
-        check_yes_phone_register.setOnClickListener(this);
         tv_agreement_phone_register = (TextView) findViewById(R.id.tv_agreement_phone_register);
         tv_agreement_phone_register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(PhoneRegisterActivity.this,UserAgreementActivity.class);
+                Intent intent = new Intent(PhoneRegisterActivity.this, UserAgreementActivity.class);
                 startActivity(intent);
             }
         });
         btn_login_phone_register = (Button) findViewById(R.id.btn_login_phone_register);
-        btn_login_phone_register.setOnClickListener(this);
         check_yes_phone_register.setChecked(false);
+        flag = false;
+        //判断checkbox
         check_yes_phone_register.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    flag = true;
+                }
+            }
+        });
+        btn_login_phone_register.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
+                if (flag) {
+                    btn_login_phone_register.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            submit();
+                        }
+                    });
+                } else {
+                    Toast.makeText(PhoneRegisterActivity.this, "不同意此协议无法注册", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
 
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btn_login_phone_register:
-
-                submit();
-                break;
-        }
-    }
 
     private void submit() {
         // validate
@@ -99,7 +107,7 @@ public class PhoneRegisterActivity extends AppCompatActivity implements View.OnC
         } catch (DbException e) {
             e.printStackTrace();
         }*/
-        boolean flag = false;
+        //boolean flag = false;
         boolean mobileExact = RegexUtils.isMobileExact(code);
         if (mobileExact) {
             /*for (int i=0;i<userDB.size();i++){

@@ -4,7 +4,6 @@ import android.widget.ImageView;
 
 import com.bwie.test.topnewsapp.R;
 
-import org.xutils.DbManager;
 import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
 import org.xutils.image.ImageOptions;
@@ -58,7 +57,7 @@ public class MyXUtils {
      * @param version
      * @return
      */
-    public static DbManager dataBaseXUtils(String dbName, int version) {
+   /* public static DbManager dataBaseXUtils(String dbName, int version) {
         DbManager.DaoConfig daoConfig = new DbManager.DaoConfig();
         daoConfig.setDbName(dbName)
                 .setDbVersion(version)
@@ -71,7 +70,7 @@ public class MyXUtils {
         DbManager db = x.getDb(daoConfig);
         return db;
     }
-
+*/
     /**
      * 图片加载
      * @param imageView 控件
