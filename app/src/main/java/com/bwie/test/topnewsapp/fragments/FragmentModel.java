@@ -32,7 +32,7 @@ import java.util.ArrayList;
 
 public class FragmentModel extends Fragment {
 
-    private static String path;
+    private String path;
     private RecyclerView recycleView;
     private String title;
     private SQLiteDatabase database;
@@ -68,9 +68,8 @@ public class FragmentModel extends Fragment {
             public void onSuccess(String result) {
                 JsonBean jsonBean = GsonUtils.gsonToBean(result, JsonBean.class);
                 ArrayList<JsonBean.ResultBean.DataBean> data = (ArrayList<JsonBean.ResultBean.DataBean>) jsonBean.getResult().getData();
-               /* MySQLiteOpenHelper helper = new MySQLiteOpenHelper(getActivity());
-                SQLiteDatabase database = helper.getWritableDatabase();*/
-                ContentValues values = new ContentValues();
+                    ContentValues values = new ContentValues();
+                ArrayList<SQLiteContent> conList = new ArrayList<>();
                 for (int i = 0; i < data.size(); i++) {
                     //title text,pic text,url text,date text,category text,author_name text
                     values.put("title", data.get(i).getTitle());
@@ -79,29 +78,25 @@ public class FragmentModel extends Fragment {
                     values.put("date", data.get(i).getDate());
                     values.put("category", data.get(i).getCategory());
                     values.put("author_name", data.get(i).getAuthor_name());
-
                     database.insert("content", null, values);
                 }
-                /* DbManager dbManager = MyXUtils.dataBaseXUtils("TopNews.db", 1);
-                try {
-                    dbManager.dropDb();
-                } catch (DbException e) {
-                    e.printStackTrace();
-                }
                 for (int i=0;i<data.size();i++){
-                    ContentDB contentDB = new ContentDB();
-                    contentDB.setTitle(data.get(i).getTitle());
-                    contentDB.setAuthor_name(data.get(i).getAuthor_name());
-                    contentDB.setCategory(data.get(i).getCategory());
-                    contentDB.setDate(data.get(i).getDate());
-                    contentDB.setThumbnail_pic_s(data.get(i).getThumbnail_pic_s());
-                    contentDB.setUrl(data.get(i).getUrl());
-                    try {
-                        dbManager.save(contentDB);
-                    } catch (DbException e) {
-                        e.printStackTrace();
-                    }
-                }*/
+                    SQLiteContent e = new SQLiteContent();
+                    e.setUrl(data.get(i).getUrl());
+                    e.setCategory(data.get(i).getCategory());
+                    e.setTitle(data.get(i).getTitle());
+                    e.setAuthor_name(data.get(i).getAuthor_name());
+                    e.setPic(data.get(i).getThumbnail_pic_s());
+                    e.setDate(data.get(i).getDate());
+
+                    conList.add(e);
+                }
+
+                MyRecyclerAdapter adapter = new MyRecyclerAdapter(conList);
+                LinearLayoutManager manager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+
+                recycleView.setLayoutManager(manager);
+                recycleView.setAdapter(adapter);
 
             }
 
@@ -112,7 +107,7 @@ public class FragmentModel extends Fragment {
 
             @Override
             public void onFinished() {
-                readDatabase();
+//                readDatabase();
             }
         });
     }

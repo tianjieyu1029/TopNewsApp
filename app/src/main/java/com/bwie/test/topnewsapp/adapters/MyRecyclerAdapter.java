@@ -32,6 +32,7 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.My
         return holder;
     }
 
+
     @Override
     public void onBindViewHolder(final MyRecyclerAdapter.MyViewHolder holder, int position) {
         holder.textView1.setText(list.get(position).getTitle());
@@ -65,7 +66,7 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.My
     public int getItemCount() {
         return list.size();
     }
-    static class MyViewHolder extends RecyclerView.ViewHolder{
+    class MyViewHolder extends RecyclerView.ViewHolder{
         ImageView imageView;
         TextView textView1;
         TextView textView2;

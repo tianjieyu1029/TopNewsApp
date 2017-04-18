@@ -9,40 +9,40 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.blankj.utilcode.util.NetworkUtils;
+import com.bwie.test.topnewsapp.activity.LoginActivity;
 import com.bwie.test.topnewsapp.adapters.MyIndicatorAdapter;
 import com.bwie.test.topnewsapp.adapters.MyViewPagerAdapter;
 import com.bwie.test.topnewsapp.beans.SQLiteTitle;
 import com.bwie.test.topnewsapp.beans.TitleBean;
-import com.bwie.test.topnewsapp.beans.UserBean;
 import com.bwie.test.topnewsapp.fragments.FragmentModel;
-import com.bwie.test.topnewsapp.fragments.LeftFragment;
 import com.bwie.test.topnewsapp.utils.GsonUtils;
 import com.bwie.test.topnewsapp.utils.ImmersionStatusBar;
 import com.bwie.test.topnewsapp.utils.MySQLiteOpenHelper;
 import com.bwie.test.topnewsapp.utils.MyXUtils;
 import com.bwie.test.topnewsapp.utils.Night_styleutils;
 import com.bwie.test.topnewsapp.utils.URLUtils;
+import com.bwie.test.topnewsapp.utils.UiUtils;
+import com.bwie.test.topnewsapp.utils.XCRoundImageView;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
-import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 
 import net.lucode.hackware.magicindicator.MagicIndicator;
 import net.lucode.hackware.magicindicator.ViewPagerHelper;
 import net.lucode.hackware.magicindicator.buildins.commonnavigator.CommonNavigator;
 
-import org.xutils.DbManager;
-import org.xutils.ex.DbException;
-import org.xutils.x;
-
 import java.util.ArrayList;
 
-public class MainActivity extends SlidingFragmentActivity {
+public class MainActivity extends AppCompatActivity {
     private int theme = 0;
     private ImageView mine_image;
     private LinearLayout title_layout;
@@ -56,6 +56,15 @@ public class MainActivity extends SlidingFragmentActivity {
     private SharedPreferences.Editor edit;
     private boolean flag;
     private SQLiteDatabase database;
+    private ImageView phone_image;
+    private ImageView qq_image;
+    private ImageView weibo_image;
+    private CheckBox more_login_check;
+    private RadioButton button;
+    private XCRoundImageView after_login_image;
+    private TextView after_login_text;
+    private LinearLayout after_login_layout;
+    private LinearLayout before_login_layout;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -63,28 +72,33 @@ public class MainActivity extends SlidingFragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ImmersionStatusBar.setStatusBar(this,Color.parseColor("#CE2E2A"));
-
+        //初始化控件
         initView();
         MySQLiteOpenHelper helper = new MySQLiteOpenHelper(MainActivity.this);
         database = helper.getWritableDatabase();
-        //initDB();
+        //侧滑
         initSlidingMenu();
+        //判断是否有网络
         boolean connected = NetworkUtils.isConnected();
-
+        //判断是否第一次进入
         SharedPreferences preferences = getSharedPreferences("http", MODE_PRIVATE);
         edit = preferences.edit();
         flag = preferences.getBoolean("first", false);
         if (flag){
+            //读取数据库
             readDatabase();
         }else {
             if (connected){
+                //添加数据
                 initData();
                 Log.d("走没走？", "onCreate: ");
             }
         }
+        //所有的监听事件
+        onClickAll();
     }
 
-
+    //夜间模式
     public void reload() {
         Intent intent = getIntent();
         overridePendingTransition(R.anim.activity_in, R.anim.activity_out);//进入动画
@@ -92,32 +106,8 @@ public class MainActivity extends SlidingFragmentActivity {
         overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
         startActivity(intent);
     }
-    private void initDB() {
 
-        DbManager.DaoConfig daoConfig = new DbManager.DaoConfig();
-        daoConfig.setDbName("TopNews.db")
-                .setDbVersion(1)
-                .setDbUpgradeListener(new DbManager.DbUpgradeListener() {
-                    @Override
-                    public void onUpgrade(DbManager db, int oldVersion, int newVersion) {
-
-                    }
-                });
-        DbManager db = x.getDb(daoConfig);
-        //DbManager dbManager = MyXUtils.dataBaseXUtils("TopNews.db", 1);
-        UserBean userBean = new UserBean();
-        userBean.setName("1");
-        userBean.setPwd("1111");
-        userBean.setPhone("1");
-        userBean.setPic("1111");
-        try {
-            db.save(userBean);
-        } catch (DbException e) {
-            e.printStackTrace();
-        }
-        Log.d("mainActivity----->", "onCreate: "+userBean.toString());
-    }
-
+    //读取数据库
     private void readDatabase() {
        /* TitleDB titles = new TitleDB();
         DbManager dbManager = MyXUtils.dataBaseXUtils("TopNews.db", 1);
@@ -156,11 +146,15 @@ public class MainActivity extends SlidingFragmentActivity {
     //侧滑
     private void initSlidingMenu() {
 
-        setBehindContentView(R.layout.menu_frame_left);
+       /* setBehindContentView(R.layout.menu_frame_left);
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.menu_frame, new LeftFragment()).commit();
+                .replace(R.id.menu_frame, new LeftFragment()).commit();*/
         // 实例化滑动菜单对象
-        menu = getSlidingMenu();
+        //menu = getSlidingMenu();
+        menu = new SlidingMenu(this);
+        menu.attachToActivity(MainActivity.this, SlidingMenu.SLIDING_CONTENT);
+        menu.setMenu(R.layout.slidingmenu);
+        initViewSlidingMenu(menu);
         // 设置可以左右滑动的菜单
         menu.setMode(SlidingMenu.LEFT);
         // 设置滑动菜单视图的宽度
@@ -172,13 +166,19 @@ public class MainActivity extends SlidingFragmentActivity {
         menu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
         // 设置下方视图的在滚动时的缩放比例
         menu.setBehindScrollScale(0.0f);
-
+        if (! menu.isSecondaryMenuShowing()){
+            menu.showContent();
+        }else{
+            menu.showSecondaryMenu();
+        }
+        //点击侧滑
         mine_image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 menu.toggle();
             }
         });
+        //处理侧滑与Viewpager的冲突
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -285,6 +285,41 @@ public class MainActivity extends SlidingFragmentActivity {
             }
         });
     }
+    //点击事件
+    private void onClickAll(){
+        //更多方式登录
+        more_login_check.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+            }
+        });
+        //夜间模式button
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                UiUtils.switchAppTheme(MainActivity.this);
+
+                reload();
+            }
+        });
+    }
+    //判断显示隐藏
+    @Override
+    public void onResume() {
+        super.onResume();
+        SharedPreferences preferences = getSharedPreferences("config", MODE_PRIVATE);
+        //flag是判断登录状态
+        boolean flag = preferences.getBoolean("flag", false);
+        if (flag) {
+            after_login_layout.setVisibility(View.VISIBLE);
+            before_login_layout.setVisibility(View.GONE);
+        }else{
+            after_login_layout.setVisibility(View.GONE);
+            before_login_layout.setVisibility(View.VISIBLE);
+        }
+    }
 
     private void initView() {
         layout = (RelativeLayout) findViewById(R.id.main_title);
@@ -299,8 +334,24 @@ public class MainActivity extends SlidingFragmentActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this,TitleActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
+    }
 
+    /**
+     *侧滑的初始化View
+     * @param view
+     */
+    private void initViewSlidingMenu(View view) {
+        phone_image = (ImageView) view.findViewById(R.id.phone_image);
+        qq_image = (ImageView) view.findViewById(R.id.qq_image);
+        weibo_image = (ImageView) view.findViewById(R.id.weibo_image);
+        more_login_check = (CheckBox) view.findViewById(R.id.more_login_check);
+        button = (RadioButton) view.findViewById(R.id.night_button);
+        after_login_image = (XCRoundImageView) view.findViewById(R.id.after_login_image);
+        after_login_text = (TextView) view.findViewById(R.id.after_login_text);
+        after_login_layout = (LinearLayout) view.findViewById(R.id.after_login_layout);
+        before_login_layout = (LinearLayout) view.findViewById(R.id.before_login_layout);
     }
 }

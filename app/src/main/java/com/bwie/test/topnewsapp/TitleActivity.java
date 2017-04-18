@@ -1,5 +1,7 @@
 package com.bwie.test.topnewsapp;
 
+import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
@@ -19,7 +21,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bwie.test.topnewsapp.adapters.OtherAdapter;
-import com.bwie.test.topnewsapp.beans.SQLiteTitle;
 import com.bwie.test.topnewsapp.utils.MySQLiteOpenHelper;
 import com.bwie.test.topnewsapp.views.MyGridView;
 
@@ -32,6 +33,8 @@ public class TitleActivity extends AppCompatActivity implements OnItemClickListe
     private List<String> mOtherList = new ArrayList<>();
     private OtherAdapter mUserAdapter, mOtherAdapter;
     boolean flag = true;
+    private SQLiteDatabase database;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,15 +46,20 @@ public class TitleActivity extends AppCompatActivity implements OnItemClickListe
         mUserGv = (MyGridView) findViewById(R.id.userGridView);
         mOtherGv = (MyGridView) findViewById(R.id.otherGridView);
         MySQLiteOpenHelper helper = new MySQLiteOpenHelper(this);
-        SQLiteDatabase database = helper.getWritableDatabase();
-        Cursor cursor = database.query("title", null, null, null, null, null, null);
-        while (cursor.moveToNext()){
-            String titleName = cursor.getString(cursor.getColumnIndex("titleName"));
-            String uri = cursor.getString(cursor.getColumnIndex("uri"));
-            String state = cursor.getString(cursor.getColumnIndex("state"));
-            SQLiteTitle titles = new SQLiteTitle(titleName,uri,state);
+        database = helper.getWritableDatabase();
+        Cursor cursor1 = database.query("title", null, "state=?", new String[]{"0"}, null, null, null);
+        while (cursor1.moveToNext()) {
+            String titleName = cursor1.getString(cursor1.getColumnIndex("titleName"));
+            mUserList.add(titleName);
         }
-        mUserList.add("推荐");
+        Cursor cursor2 = database.query("title", null, "state=?", new String[]{"1"}, null, null, null);
+        while (cursor2.moveToNext()) {
+            String titleName = cursor2.getString(cursor2.getColumnIndex("titleName"));
+            mOtherList.add(titleName);
+        }
+
+
+       /* mUserList.add("推荐");
         mUserList.add("热点");
         mUserList.add("上海");
         mUserList.add("时尚");
@@ -72,9 +80,9 @@ public class TitleActivity extends AppCompatActivity implements OnItemClickListe
         mOtherList.add("游戏");
         mOtherList.add("数码");
         mOtherList.add("娱乐");
-        mOtherList.add("探索");
-        mUserAdapter = new OtherAdapter(this, mUserList,true);
-        mOtherAdapter = new OtherAdapter(this, mOtherList,false);
+        mOtherList.add("探索");*/
+        mUserAdapter = new OtherAdapter(this, mUserList, true);
+        mOtherAdapter = new OtherAdapter(this, mOtherList, false);
         mUserGv.setAdapter(mUserAdapter);
         mOtherGv.setAdapter(mOtherAdapter);
         mUserGv.setOnItemClickListener(this);
@@ -82,8 +90,9 @@ public class TitleActivity extends AppCompatActivity implements OnItemClickListe
     }
 
     /**
-     *获取点击的Item的对应View，
-     *因为点击的Item已经有了自己归属的父容器MyGridView，所有我们要是有一个ImageView来代替Item移动
+     * 获取点击的Item的对应View，
+     * 因为点击的Item已经有了自己归属的父容器MyGridView，所有我们要是有一个ImageView来代替Item移动
+     *
      * @param view
      * @return
      */
@@ -100,6 +109,7 @@ public class TitleActivity extends AppCompatActivity implements OnItemClickListe
 
     /**
      * 获取移动的VIEW，放入对应ViewGroup布局容器
+     *
      * @param viewGroup
      * @param view
      * @param initLocation
@@ -128,6 +138,7 @@ public class TitleActivity extends AppCompatActivity implements OnItemClickListe
         moveViewGroup.addView(moveLinearLayout);
         return moveLinearLayout;
     }
+
     /**
      * 点击ITEM移动动画
      *
@@ -162,7 +173,7 @@ public class TitleActivity extends AppCompatActivity implements OnItemClickListe
             }
 
             @Override
-            public void onAnimationRepeat(Animation  animation) {
+            public void onAnimationRepeat(Animation animation) {
             }
 
             @Override
@@ -188,7 +199,7 @@ public class TitleActivity extends AppCompatActivity implements OnItemClickListe
         switch (parent.getId()) {
             case R.id.userGridView:
                 //position为 0，1 的不可以进行任何操作
-                if (position != 0 && position != 1&&flag) {
+                if (position != 0 && position != 1 && flag) {
                     final ImageView moveImageView = getView(view);
                     if (moveImageView != null) {
                         flag = !flag;
@@ -199,6 +210,9 @@ public class TitleActivity extends AppCompatActivity implements OnItemClickListe
                         mOtherAdapter.setVisible(false);
                         //添加到最后一个
                         mOtherAdapter.addItem(channel);
+                        ContentValues values = new ContentValues();
+                        values.put("state", "1");
+                        int i = database.update("title", values, "titleName=?", new String[]{mUserList.get(position)});
                         new Handler().postDelayed(new Runnable() {
                             public void run() {
                                 try {
@@ -216,7 +230,7 @@ public class TitleActivity extends AppCompatActivity implements OnItemClickListe
                 break;
             case R.id.otherGridView:
                 final ImageView moveImageView = getView(view);
-                if (moveImageView != null&&flag) {
+                if (moveImageView != null && flag) {
                     flag = !flag;
                     TextView newTextView = (TextView) view.findViewById(R.id.text_item);
                     final int[] startLocation = new int[2];
@@ -225,13 +239,16 @@ public class TitleActivity extends AppCompatActivity implements OnItemClickListe
                     mUserAdapter.setVisible(false);
                     //添加到最后一个
                     mUserAdapter.addItem(channel);
+                    ContentValues values = new ContentValues();
+                    values.put("state", "0");
+                    int i = database.update("title", values, "titleName=?", new String[]{mOtherList.get(position)});
                     new Handler().postDelayed(new Runnable() {
                         public void run() {
                             try {
                                 int[] endLocation = new int[2];
                                 //获取终点的坐标
                                 mUserGv.getChildAt(mUserGv.getLastVisiblePosition()).getLocationInWindow(endLocation);
-                                MoveAnim(moveImageView, startLocation, endLocation, channel, mOtherGv,false);
+                                MoveAnim(moveImageView, startLocation, endLocation, channel, mOtherGv, false);
                                 mOtherAdapter.setRemove(position);
                             } catch (Exception localException) {
                             }
@@ -242,5 +259,13 @@ public class TitleActivity extends AppCompatActivity implements OnItemClickListe
             default:
                 break;
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(TitleActivity.this,MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 }
