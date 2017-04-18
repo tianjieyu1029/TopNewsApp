@@ -13,10 +13,10 @@
                     android:layout_height="45dp"
                     android:background="#CE2E2A"
                     android:id="@+id/main_title"
-
-                    android:orientation="horizontal">
-        <ImageView android:layout_width="wrap_content"
-                   android:layout_height="45dp"
+    >
+        <ImageView android:layout_width="30dp"
+                   android:layout_height="30dp"
+                   android:layout_centerVertical="true"
                    android:id="@+id/mine_image"
                    android:layout_marginLeft="10dp"
                    android:src="@mipmap/mine_titlebar_normal"
