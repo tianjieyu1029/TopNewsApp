@@ -32,6 +32,7 @@ public class TitleActivity extends AppCompatActivity implements OnItemClickListe
     private List<String> mUserList = new ArrayList<>();
     private List<String> mOtherList = new ArrayList<>();
     private OtherAdapter mUserAdapter, mOtherAdapter;
+    //---->
     boolean flag = true;
     private SQLiteDatabase database;
 
@@ -45,6 +46,7 @@ public class TitleActivity extends AppCompatActivity implements OnItemClickListe
     public void initView() {
         mUserGv = (MyGridView) findViewById(R.id.userGridView);
         mOtherGv = (MyGridView) findViewById(R.id.otherGridView);
+        //----->
         MySQLiteOpenHelper helper = new MySQLiteOpenHelper(this);
         database = helper.getWritableDatabase();
         Cursor cursor1 = database.query("title", null, "state=?", new String[]{"0"}, null, null, null);
@@ -189,6 +191,7 @@ public class TitleActivity extends AppCompatActivity implements OnItemClickListe
                     mUserAdapter.notifyDataSetChanged();
                     mOtherAdapter.remove();
                 }
+                //----->
                 flag = !flag;
             }
         });
@@ -202,6 +205,7 @@ public class TitleActivity extends AppCompatActivity implements OnItemClickListe
                 if (position != 0 && position != 1 && flag) {
                     final ImageView moveImageView = getView(view);
                     if (moveImageView != null) {
+                        //----->
                         flag = !flag;
                         TextView newTextView = (TextView) view.findViewById(R.id.text_item);
                         final int[] startLocation = new int[2];
@@ -210,6 +214,7 @@ public class TitleActivity extends AppCompatActivity implements OnItemClickListe
                         mOtherAdapter.setVisible(false);
                         //添加到最后一个
                         mOtherAdapter.addItem(channel);
+                        //----->
                         ContentValues values = new ContentValues();
                         values.put("state", "1");
                         int i = database.update("title", values, "titleName=?", new String[]{mUserList.get(position)});
@@ -231,6 +236,7 @@ public class TitleActivity extends AppCompatActivity implements OnItemClickListe
             case R.id.otherGridView:
                 final ImageView moveImageView = getView(view);
                 if (moveImageView != null && flag) {
+                    //---->
                     flag = !flag;
                     TextView newTextView = (TextView) view.findViewById(R.id.text_item);
                     final int[] startLocation = new int[2];
@@ -239,6 +245,7 @@ public class TitleActivity extends AppCompatActivity implements OnItemClickListe
                     mUserAdapter.setVisible(false);
                     //添加到最后一个
                     mUserAdapter.addItem(channel);
+                    //----->
                     ContentValues values = new ContentValues();
                     values.put("state", "0");
                     int i = database.update("title", values, "titleName=?", new String[]{mOtherList.get(position)});

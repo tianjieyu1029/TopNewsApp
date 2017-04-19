@@ -5,25 +5,25 @@
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:fitsSystemWindows="true"
+    android:orientation="vertical"
     tools:context="com.bwie.test.topnewsapp.MainActivity">
 
-    <RelativeLayout android:layout_width="match_parent"
+    <RelativeLayout android:id="@+id/main_title"
+                    android:layout_width="match_parent"
                     android:layout_height="45dp"
                     android:background="#CE2E2A"
-                    android:id="@+id/main_title"
     >
-        <ImageView android:layout_width="30dp"
+        <ImageView android:id="@+id/mine_image"
+                   android:layout_width="30dp"
                    android:layout_height="30dp"
                    android:layout_centerVertical="true"
-                   android:id="@+id/mine_image"
                    android:layout_marginLeft="10dp"
                    android:src="@mipmap/mine_titlebar_normal"
         />
-        <LinearLayout android:layout_width="wrap_content"
+        <LinearLayout android:id="@+id/title_layout"
+                      android:layout_width="wrap_content"
                       android:layout_height="45dp"
-                      android:id="@+id/title_layout"
                       android:layout_centerInParent="true"
                       android:orientation="horizontal">
             <ImageView android:layout_width="wrap_content"
@@ -59,9 +59,14 @@
                    android:layout_marginRight="10dp"
                    android:src="@mipmap/ic_category_expand_dark_normal_night"/>
     </LinearLayout>
-    <android.support.v4.view.ViewPager
-        android:id="@+id/viewPager"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"></android.support.v4.view.ViewPager>
-
+        android:layout_height="wrap_content"
+    >
+        <android.support.v4.view.ViewPager
+            android:id="@+id/viewPager"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"></android.support.v4.view.ViewPager>
+    </android.support.v4.widget.SwipeRefreshLayout>
 </LinearLayout>

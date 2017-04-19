@@ -69,7 +69,7 @@ public class FragmentModel extends Fragment {
                 JsonBean jsonBean = GsonUtils.gsonToBean(result, JsonBean.class);
                 ArrayList<JsonBean.ResultBean.DataBean> data = (ArrayList<JsonBean.ResultBean.DataBean>) jsonBean.getResult().getData();
                     ContentValues values = new ContentValues();
-                ArrayList<SQLiteContent> conList = new ArrayList<>();
+                final ArrayList<SQLiteContent> conList = new ArrayList<>();
                 for (int i = 0; i < data.size(); i++) {
                     //title text,pic text,url text,date text,category text,author_name text
                     values.put("title", data.get(i).getTitle());
@@ -97,6 +97,14 @@ public class FragmentModel extends Fragment {
 
                 recycleView.setLayoutManager(manager);
                 recycleView.setAdapter(adapter);
+                adapter.setmOnItemClickListener(new MyRecyclerAdapter.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        Intent intent = new Intent(getActivity(), NextActivity.class);
+                        intent.putExtra("url", conList.get(position).getUrl());
+                        getActivity().startActivity(intent);
+                    }
+                });
 
             }
 
@@ -107,7 +115,7 @@ public class FragmentModel extends Fragment {
 
             @Override
             public void onFinished() {
-//                readDatabase();
+               // readDatabase();
             }
         });
     }
@@ -162,7 +170,7 @@ public class FragmentModel extends Fragment {
                 getActivity().startActivity(intent);
             }
         });
-        database.close();
+        cursor.close();
     }
 
     private void initView(View view) {

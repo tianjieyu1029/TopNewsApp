@@ -15,6 +15,7 @@ import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ImageView;
@@ -22,10 +23,12 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.blankj.utilcode.util.NetworkUtils;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
+import com.bwie.test.topnewsapp.activity.HomePagerActivity;
 import com.bwie.test.topnewsapp.activity.LoginActivity;
 import com.bwie.test.topnewsapp.adapters.MyIndicatorAdapter;
 import com.bwie.test.topnewsapp.adapters.MyViewPagerAdapter;
@@ -40,20 +43,17 @@ import com.bwie.test.topnewsapp.utils.Night_styleutils;
 import com.bwie.test.topnewsapp.utils.URLUtils;
 import com.bwie.test.topnewsapp.utils.UiUtils;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
-import com.tencent.connect.UserInfo;
-import com.tencent.connect.auth.QQToken;
-import com.tencent.tauth.IUiListener;
 import com.tencent.tauth.Tencent;
-import com.tencent.tauth.UiError;
+import com.umeng.socialize.UMAuthListener;
+import com.umeng.socialize.UMShareAPI;
+import com.umeng.socialize.bean.SHARE_MEDIA;
 
 import net.lucode.hackware.magicindicator.MagicIndicator;
 import net.lucode.hackware.magicindicator.ViewPagerHelper;
 import net.lucode.hackware.magicindicator.buildins.commonnavigator.CommonNavigator;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     private int theme = 0;
@@ -78,17 +78,15 @@ public class MainActivity extends AppCompatActivity {
     private TextView after_login_text;
     private LinearLayout after_login_layout;
     private LinearLayout before_login_layout;
-    private Tencent mTencent;
-    private UserInfo userInfo;
     private SharedPreferences.Editor editor;
-    private int LOGINSTATE=10001;
+    private int LOGINSTATEQQ = 10001;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Night_styleutils.changeStyle(this, theme, savedInstanceState);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ImmersionStatusBar.setStatusBar(this,Color.parseColor("#CE2E2A"));
+        ImmersionStatusBar.setStatusBar(this, Color.parseColor("#CE2E2A"));
         //初始化控件
         initView();
         MySQLiteOpenHelper helper = new MySQLiteOpenHelper(MainActivity.this);
@@ -101,11 +99,11 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences preferencesHttp = getSharedPreferences("http", MODE_PRIVATE);
         edit = preferencesHttp.edit();
         flag = preferencesHttp.getBoolean("first", false);
-        if (flag){
+        if (flag) {
             //读取数据库
             readDatabase();
-        }else {
-            if (connected){
+        } else {
+            if (connected) {
                 //添加数据
                 initData();
                 Log.d("走没走？", "onCreate: ");
@@ -154,18 +152,19 @@ public class MainActivity extends AppCompatActivity {
                 "title", null, "state=?", new String[]{"0"}, null, null, null);
         //titleName text,uri text,state Integer
         ArrayList<SQLiteTitle> list = new ArrayList<>();
-        while (cursor.moveToNext()){
+        while (cursor.moveToNext()) {
             String titleName = cursor.getString(cursor.getColumnIndex("titleName"));
             String uri = cursor.getString(cursor.getColumnIndex("uri"));
             String state = cursor.getString(cursor.getColumnIndex("state"));
-            SQLiteTitle titles = new SQLiteTitle(titleName,uri,state);
+            SQLiteTitle titles = new SQLiteTitle(titleName, uri, state);
             list.add(titles);
         }
-        Log.d("title---->", "readDatabase: "+list.size());
+        Log.d("title---->", "readDatabase: " + list.size());
         initIndicator(list);
         initFragment(list);
         database.close();
     }
+
     //侧滑
     private void initSlidingMenu() {
 
@@ -189,9 +188,9 @@ public class MainActivity extends AppCompatActivity {
         menu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
         // 设置下方视图的在滚动时的缩放比例
         menu.setBehindScrollScale(0.0f);
-        if (! menu.isSecondaryMenuShowing()){
+        if (!menu.isSecondaryMenuShowing()) {
             menu.showContent();
-        }else{
+        } else {
             menu.showSecondaryMenu();
         }
         //点击侧滑
@@ -211,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 if (position == 0) {
-                   menu.setTouchModeAbove(
+                    menu.setTouchModeAbove(
                             SlidingMenu.TOUCHMODE_FULLSCREEN);
                 } else {
                     // 当在其他位置的时候，设置不可以拖拽出来(SlidingMenu.TOUCHMODE_NONE)，或只有在边缘位置才可以拖拽出来TOUCHMODE_MARGIN
@@ -227,89 +226,76 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
     //指示器
     private void initIndicator(ArrayList<SQLiteTitle> list) {
-        if (theme ==1){
+        if (theme == 1) {
             magic_indicator.setBackgroundColor(Color.parseColor("#ffffff"));
         }
-        if (theme==2){
+        if (theme == 2) {
             magic_indicator.setBackgroundColor(Color.parseColor("#000000"));
         }
         ArrayList<String> strings = new ArrayList<>();
-        for (int i = 0;i<list.size();i++){
+        for (int i = 0; i < list.size(); i++) {
             strings.add(list.get(i).getTitleName());
         }
         mCommonNavigator = new CommonNavigator(this);
         mCommonNavigator.setSkimOver(true);
-        MyIndicatorAdapter adapter = new MyIndicatorAdapter(strings,viewPager);
+        MyIndicatorAdapter adapter = new MyIndicatorAdapter(strings, viewPager);
         mCommonNavigator.setAdapter(adapter);
         magic_indicator.setNavigator(mCommonNavigator);
         ViewPagerHelper.bind(magic_indicator, viewPager);
     }
+
     //添加fragment
     private void initFragment(ArrayList<SQLiteTitle> list) {
         ArrayList<Fragment> fragList = new ArrayList<>();
-        for (int i =0;i<list.size();i++){
-            FragmentModel fragmentModel = FragmentModel.newInstance(list.get(i).getUri(),list.get(i).getTitleName());
+        for (int i = 0; i < list.size(); i++) {
+            FragmentModel fragmentModel = FragmentModel.newInstance(list.get(i).getUri(), list.get(i).getTitleName());
             fragList.add(fragmentModel);
         }
         MyViewPagerAdapter pagerAdapter = new MyViewPagerAdapter(getSupportFragmentManager(), fragList);
         viewPager.setAdapter(pagerAdapter);
     }
+
     //请求数据
     private void initData() {
         new MyXUtils().httpXUtilsPOST(URLUtils.URL_TITLE,
                 "uri", "news", new MyXUtils.MyHttpCallback() {
-            @Override
-            public void onSuccess(String result) {
-                Log.d("这里呢？", "onSuccess: "+result);
-                TitleBean titleBean = GsonUtils.gsonToBean(result, TitleBean.class);
-                ArrayList<TitleBean.ResultBean.DateBean> date = (ArrayList<TitleBean.ResultBean.DateBean>) titleBean.getResult().getDate();
-                Log.d("有没有？", "onSuccess: "+date.toString());
-                //titleName text,uri text,state Integer
-                ContentValues values = new ContentValues();
-                for (int i=0;i<date.size();i++){
+                    @Override
+                    public void onSuccess(String result) {
+                        Log.d("这里呢？", "onSuccess: " + result);
+                        TitleBean titleBean = GsonUtils.gsonToBean(result, TitleBean.class);
+                        ArrayList<TitleBean.ResultBean.DateBean> date = (ArrayList<TitleBean.ResultBean.DateBean>) titleBean.getResult().getDate();
+                        Log.d("有没有？", "onSuccess: " + date.toString());
+                        //titleName text,uri text,state Integer
+                        ContentValues values = new ContentValues();
+                        for (int i = 0; i < date.size(); i++) {
 
-                    values.put("titleName",date.get(i).getTitle());
-                    values.put("uri",date.get(i).getUri());
-                    values.put("state",date.get(i).getId()%2 + "");
-                    database.insert("title",null,values);
-                }
-                edit.putBoolean("first",true);
-                edit.commit();
-              /*  DbManager dbManager = MyXUtils.dataBaseXUtils("TopNews.db", 1);
-                try {
-                    dbManager.dropDb();
-                } catch (DbException e) {
-                    e.printStackTrace();
-                }
-                for (int i=0;i<date.size();i++){
-                    TitleDB titleDB = new TitleDB();
-                    titleDB.setTid(date.get(i).getId());
-                    titleDB.setTitle(date.get(i).getTitle());
-                    titleDB.setUri(date.get(i).getUri());
-                    try {
-                        dbManager.save(titleDB);
-                    } catch (DbException e) {
-                        e.printStackTrace();
+                            values.put("titleName", date.get(i).getTitle());
+                            values.put("uri", date.get(i).getUri());
+                            values.put("state", date.get(i).getId() % 2 + "");
+                            database.insert("title", null, values);
+                        }
+                        edit.putBoolean("first", true);
+                        edit.commit();
                     }
-                }*/
-            }
 
-            @Override
-            public void onError(String errorMsg) {
-                Log.d("错了？", "onError: "+errorMsg);
-            }
+                    @Override
+                    public void onError(String errorMsg) {
+                        Log.d("错了？", "onError: " + errorMsg);
+                    }
 
-            @Override
-            public void onFinished() {
-                readDatabase();
+                    @Override
+                    public void onFinished() {
+                        readDatabase();
 
-            }
-        });
+                    }
+                });
     }
+
     //点击事件
-    private void onClickAll(){
+    private void onClickAll() {
         //更多方式登录
         more_login_check.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -333,74 +319,54 @@ public class MainActivity extends AppCompatActivity {
                 login();
             }
         });
-
+        after_login_layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, HomePagerActivity.class);
+                startActivity(intent);
+            }
+        });
     }
+
     //第三方QQ登录
     public void login() {
-        mTencent = Tencent.createInstance("1106107726", this.getApplicationContext());
-        if (!mTencent.isSessionValid())
-        {
-
-            mTencent.login(this, "", iUiListener);
-        }
+        UMShareAPI.get(this).getPlatformInfo(MainActivity.this, SHARE_MEDIA.QQ, umAuthListener);
     }
-    private IUiListener iUiListener = new IUiListener() {
+
+    private UMAuthListener umAuthListener = new UMAuthListener() {
         @Override
-        public void onComplete(Object o) {
-            editor.putBoolean("flag",true);
+        public void onStart(SHARE_MEDIA platform) {
+            //授权开始的回调
+        }
+        @Override
+        public void onComplete(SHARE_MEDIA platform, int action, Map<String, String> data) {
+            Toast.makeText(getApplicationContext(), "Authorize succeed", Toast.LENGTH_SHORT).show();
+
+            String name = data.get("name");
+            String iconurl = data.get("iconurl");
+            editor.putString("QQName", name);
+            editor.putString("QQPic", iconurl);
+            editor.putBoolean("flag", true);
             editor.commit();
-            JSONObject obj = (JSONObject) o;
-            try {
-                String openID = obj.getString("openid");
-                String accessToken = obj.getString("access_token");
-                String expires = obj.getString("expires_in");
-                mTencent.setOpenId(openID);
-                mTencent.setAccessToken(accessToken, expires);
-                QQToken qqToken = mTencent.getQQToken();
-                userInfo = new UserInfo(getApplicationContext(), qqToken);
-                userInfo.getUserInfo(new IUiListener() {
-                    @Override
-                    public void onComplete(Object o) {
-
-                        JSONObject res = (JSONObject) o;
-                        //获取昵称
-                        String nickName = res.optString("nickname");
-                        //获取图片
-                        String figureurl_qq_1 = res.optString("figureurl_qq_1");
-                        editor.putString("QQName",nickName);
-                        editor.putString("QQPic",figureurl_qq_1);
-                        editor.commit();
-                        setLoginInfo(nickName, figureurl_qq_1);
-
-                    }
-
-                    @Override
-                    public void onError(UiError uiError) {
-
-                    }
-
-                    @Override
-                    public void onCancel() {
-
-                    }
-                });
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            after_login_layout.setVisibility(View.VISIBLE);
+            before_login_layout.setVisibility(View.GONE);
+            setLoginInfo(name, iconurl);
         }
 
         @Override
-        public void onError(UiError uiError) {
-
+        public void onError(SHARE_MEDIA platform, int action, Throwable t) {
+            Toast.makeText( getApplicationContext(), "Authorize fail", Toast.LENGTH_SHORT).show();
         }
 
         @Override
-        public void onCancel() {
-
+        public void onCancel(SHARE_MEDIA platform, int action) {
+            Toast.makeText( getApplicationContext(), "Authorize cancel", Toast.LENGTH_SHORT).show();
         }
     };
 
+    //设置登录信息
     private void setLoginInfo(String nickName, String figureurl_qq_1) {
+
         Glide.with(MainActivity.this).load(figureurl_qq_1).asBitmap().centerCrop().
                 into(new BitmapImageViewTarget(mine_image) {
                     @Override
@@ -428,7 +394,9 @@ public class MainActivity extends AppCompatActivity {
     //回调
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Tencent.onActivityResultData(requestCode,resultCode,data,iUiListener);
+        super.onActivityResult(requestCode, resultCode, data);
+        UMShareAPI.get(this).onActivityResult(requestCode,resultCode,data);
+
     }
 
     //判断显示隐藏
@@ -442,19 +410,18 @@ public class MainActivity extends AppCompatActivity {
         if (flag) {
             after_login_layout.setVisibility(View.VISIBLE);
             before_login_layout.setVisibility(View.GONE);
-           if (LOGINSTATE==Tencent.REQUEST_LOGIN){
-               String qqName = preferencesLogin.getString("QQName","");
-               String qqPic = preferencesLogin.getString("QQPic", "");
-               setLoginInfo(qqName,qqPic);
-           }
-
-
-        }else{
+            if (LOGINSTATEQQ == Tencent.REQUEST_LOGIN) {
+                String qqName = preferencesLogin.getString("QQName", "");
+                String qqPic = preferencesLogin.getString("QQPic", "");
+                setLoginInfo(qqName, qqPic);
+            }
+        } else {
+            mine_image.setImageResource(R.mipmap.mine_titlebar_normal);
             after_login_layout.setVisibility(View.GONE);
             before_login_layout.setVisibility(View.VISIBLE);
         }
     }
-
+    //初始化控件
     private void initView() {
         layout = (RelativeLayout) findViewById(R.id.main_title);
         mine_image = (ImageView) findViewById(R.id.mine_image);
@@ -466,7 +433,7 @@ public class MainActivity extends AppCompatActivity {
         expanded_menu_image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this,TitleActivity.class);
+                Intent intent = new Intent(MainActivity.this, TitleActivity.class);
                 startActivity(intent);
                 finish();
             }
@@ -474,7 +441,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     *侧滑的初始化View
+     * 侧滑的初始化View
+     *
      * @param view
      */
     private void initViewSlidingMenu(View view) {
@@ -487,5 +455,23 @@ public class MainActivity extends AppCompatActivity {
         after_login_text = (TextView) view.findViewById(R.id.after_login_text);
         after_login_layout = (LinearLayout) view.findViewById(R.id.after_login_layout);
         before_login_layout = (LinearLayout) view.findViewById(R.id.before_login_layout);
+    }
+    //双击退出
+    private long firstTime=0;
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        switch (keyCode){
+            case KeyEvent.KEYCODE_BACK:
+                long secondTime=System.currentTimeMillis();
+                if(secondTime-firstTime>2000){
+                    Toast.makeText(MainActivity.this,"再按一次退出程序",Toast.LENGTH_SHORT).show();
+                    firstTime=secondTime;
+                    return true;
+                }else{
+                    System.exit(0);
+                }
+                break;
+        }
+        return super.onKeyUp(keyCode, event);
     }
 }

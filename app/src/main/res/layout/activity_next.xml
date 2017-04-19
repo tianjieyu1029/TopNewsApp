@@ -1,13 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_next"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+>
+    <include layout="@layout/include_head_login"/>
+    <WebView android:id="@+id/webView"
+             android:layout_width="match_parent"
+             android:layout_height="0dp"
+             android:layout_weight="1"></WebView>
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingTop="10dp"
+                  android:paddingBottom="10dp"
+                  android:orientation="horizontal">
+        <LinearLayout android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:orientation="horizontal">
+            <CheckBox android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:button="@null"
+                      android:drawableLeft="@mipmap/ic_action_write_normal"
+                      android:drawablePadding="5dp"
+                      android:paddingLeft="20dp"
+                      android:paddingRight="20dp"
+                      android:text="写评论"
+                      android:textColor="#999999"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                      android:text="|"
+                      android:textColor="#999999"/>
+        </LinearLayout>
+        <LinearLayout android:layout_width="0dp"
+                      android:layout_height="wrap_content"
+                      android:layout_weight="1"
+                      android:orientation="horizontal"
+        >
+            <ImageView android:layout_width="0dp"
+                       android:layout_height="wrap_content"
+                       android:layout_weight="1"
+                       android:src="@mipmap/ic_action_comment_normal"
+            />
+            <ImageView android:layout_width="0dp"
+                       android:layout_height="wrap_content"
+                       android:layout_weight="1"
+                       android:src="@mipmap/ic_action_favor_normal"
+            />
+            <ImageView android:layout_width="0dp"
+                       android:layout_height="wrap_content"
+                       android:layout_weight="1"
+                       android:id="@+id/next_share_image"
+                       android:src="@mipmap/ic_action_repost_normal"
+            />
+            <ImageView android:layout_width="0dp"
+                       android:layout_height="wrap_content"
+                       android:layout_weight="1"
+                       android:src="@mipmap/report_tool_details_normal"
+            />
+        </LinearLayout>
 
-    >
 
-<WebView android:layout_width="match_parent" android:layout_height="match_parent"
-android:id="@+id/webView"></WebView>
-</RelativeLayout>
+    </LinearLayout>
+</LinearLayout>

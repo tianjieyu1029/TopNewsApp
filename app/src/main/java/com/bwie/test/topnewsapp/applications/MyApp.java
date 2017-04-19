@@ -3,11 +3,10 @@ package com.bwie.test.topnewsapp.applications;
 import android.app.Application;
 
 import com.blankj.utilcode.util.Utils;
-import com.bwie.test.topnewsapp.beans.UserBean;
-import com.bwie.test.topnewsapp.utils.MyXUtils;
+import com.umeng.socialize.Config;
+import com.umeng.socialize.PlatformConfig;
+import com.umeng.socialize.UMShareAPI;
 
-import org.xutils.DbManager;
-import org.xutils.ex.DbException;
 import org.xutils.x;
 
 import cn.smssdk.SMSSDK;
@@ -17,13 +16,18 @@ import cn.smssdk.SMSSDK;
  */
 
 public class MyApp extends Application {
+    {
+        PlatformConfig.setQQZone("1106034403", "XbCJuzd68e1ipMWu");
+        //PlatformConfig.setQQZone("1106034403","XbCJuzd68e1ipMWu");
+    }
     @Override
     public void onCreate() {
         super.onCreate();
         Utils.init(getApplicationContext());
         x.Ext.init(this);
         x.Ext.setDebug(true);
+        Config.DEBUG = true;
         SMSSDK.initSDK(this, "1cf72a14a34ed", "6891b8254a2fc86bb0becbe07ff72987");
-
+        UMShareAPI.get(this);
     }
 }
