@@ -94,6 +94,31 @@
 
     <include layout="@layout/inclule_underline"/>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+
+        <ImageView
+
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical"
+            android:src="@mipmap/feedbackicon_profile_night"/>
+
+        <EditText
+            android:id="@+id/et_email_captcha"
+            android:layout_width="240dp"
+            android:background="@null"
+            android:layout_height="50dp"
+            android:layout_marginLeft="10dp"
+            android:hint="请输入邮箱地址"
+            android:maxLines="1"/>
+    </LinearLayout>
+    <include layout="@layout/inclule_underline"/>
+
     <Button
         android:id="@+id/btn_login_captcha"
         android:layout_width="240dp"
@@ -103,6 +128,6 @@
         android:background="@drawable/button_register"
         android:text="登录"
         android:textColor="#FD3131"
-        android:textSize="25dp"/>
+        android:textSize="20sp"/>
 
 </LinearLayout>

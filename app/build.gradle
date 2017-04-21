@@ -50,5 +50,18 @@ dependencies {
     compile project(':utilcode')
     compile project(':library')
     compile 'com.github.bumptech.glide:glide:3.7.0'
-
+    compile 'com.makeramen:roundedimageview:2.2.1'
+    compile files('libs/umeng_shareboard_widget.jar')
+    compile files('libs/umeng_social_shareboard.jar')
+    compile files('libs/open_sdk_r5781.jar')
+    compile files('libs/SocialSDK_QQ_Full.jar')
+    compile files('libs/umeng_social_api.jar')
+    compile files('libs/umeng_social_net.jar')
+    compile files('libs/umeng_social_tool.jar')
+    compile files('libs/SocialSDK_WeiXin_Full.jar')
+    compile files('libs/wechat-sdk-android-with-mta-1.1.6.jar')
+    compile files('libs/SocialSDK_Sina_Full.jar')
+    compile files('libs/weiboSDKCore_3.1.4.jar')
+    compile project(':lib')
+    compile 'eu.the4thfloor.volley:com.android.volley:2015.05.28'
 }

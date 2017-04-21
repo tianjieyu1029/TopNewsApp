@@ -46,6 +46,20 @@ public class TitleActivity extends AppCompatActivity implements OnItemClickListe
     public void initView() {
         mUserGv = (MyGridView) findViewById(R.id.userGridView);
         mOtherGv = (MyGridView) findViewById(R.id.otherGridView);
+        ImageView back = (ImageView) findViewById(R.id.iv_back_include_head_login);
+        TextView title = (TextView) findViewById(R.id.tv_back_include_head_login);
+        View viewById = findViewById(R.id.iv_view_include_head_login);
+        viewById.setVisibility(View.INVISIBLE);
+        title.setText("频道管理");
+        title.setTextSize(15);
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(TitleActivity.this,MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
         //----->
         MySQLiteOpenHelper helper = new MySQLiteOpenHelper(this);
         database = helper.getWritableDatabase();

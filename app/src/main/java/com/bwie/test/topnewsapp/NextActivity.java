@@ -9,6 +9,14 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.umeng.socialize.ShareAction;
+import com.umeng.socialize.UMShareAPI;
+import com.umeng.socialize.UMShareConfig;
+import com.umeng.socialize.UMShareListener;
+import com.umeng.socialize.bean.SHARE_MEDIA;
+import com.umeng.socialize.media.UMWeb;
 
 public class NextActivity extends AppCompatActivity {
 
@@ -24,13 +32,22 @@ public class NextActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_next);
         initView();
+        UMShareConfig config = new UMShareConfig();
+        //是否需求重复授权用户信息
+        config.isNeedAuthOnGetUserInfo(true);
+        //是否打开分享编辑页面
+        config.isOpenShareEditActivity(true);
+
+        UMShareAPI.get(this).setShareConfig(config);
 //show_title_details_normal.png
         initData();
     }
 
     private void initData() {
         Intent intent = getIntent();
-        String url = intent.getStringExtra("url");
+        final String url = intent.getStringExtra("url");
+        final String title = intent.getStringExtra("title");
+        final String content = intent.getStringExtra("content");
         if (webView != null) {
             webView.setWebViewClient(new WebViewClient() {
                 @Override
@@ -38,10 +55,75 @@ public class NextActivity extends AppCompatActivity {
                     dialog.dismiss();
                 }
             });
+            webView.getSettings().setJavaScriptEnabled(true);
+            webView.getSettings().setDomStorageEnabled(true);
 
+            webView.getSettings().setBuiltInZoomControls(true);
+            //可以访问的文件
+            webView.getSettings().setAllowFileAccess(true);
             loadUrl(url);
+            /*webView.setWebViewClient(new WebViewClient() {
+                public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                    view.loadUrl(url);
+                    return true;
+                }
+            });*/
+
         }
+        //分享
+        next_share_image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+                //UMImage image = new UMImage(NextActivity.this, url);//资源文件
+                UMWeb umWeb = new UMWeb(url);
+                umWeb.setTitle(title);
+                umWeb.setDescription(content);
+                new ShareAction(NextActivity.this).withText("")
+
+                        .withMedia(umWeb)
+                        .setDisplayList(SHARE_MEDIA.SINA, SHARE_MEDIA.QQ, SHARE_MEDIA.WEIXIN,
+                                SHARE_MEDIA.WEIXIN_CIRCLE, SHARE_MEDIA.QZONE,
+                                SHARE_MEDIA.WEIXIN_FAVORITE, SHARE_MEDIA.FACEBOOK)
+                        .setCallback(umShareListener).open();
+            }
+        });
     }
+
+    private UMShareListener umShareListener = new UMShareListener() {
+        @Override
+        public void onStart(SHARE_MEDIA platform) {
+            //分享开始的回调
+        }
+
+        @Override
+        public void onResult(SHARE_MEDIA platform) {
+
+            Toast.makeText(NextActivity.this, platform + " 分享成功啦", Toast.LENGTH_SHORT).show();
+
+        }
+
+        @Override
+        public void onError(SHARE_MEDIA platform, Throwable t) {
+            Toast.makeText(NextActivity.this, platform + " 分享失败啦", Toast.LENGTH_SHORT).show();
+            if (t != null) {
+            }
+        }
+
+        @Override
+        public void onCancel(SHARE_MEDIA platform) {
+            Toast.makeText(NextActivity.this, platform + " 分享取消了", Toast.LENGTH_SHORT).show();
+        }
+    };
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        UMShareAPI.get(this).onActivityResult(requestCode, resultCode, data);
+
+    }
+
 
     public void loadUrl(String url) {
         if (webView != null) {
@@ -70,4 +152,5 @@ public class NextActivity extends AppCompatActivity {
         next_share_image = (ImageView) findViewById(R.id.next_share_image);
 
     }
+
 }

@@ -98,15 +98,15 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingLeft="50dp"
-                    android:src="@mipmap/ic_drawer_favorite_normal"/>
+                    android:src="@mipmap/ic_drawer_search_normal"/>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginLeft="15dp"
                     android:gravity="center_vertical"
-                    android:text="收藏"
-                    android:textSize="20sp"/>
+                    android:text="好友动态"
+                    android:textSize="20sp" android:id="@+id/textView"/>
             </LinearLayout>
             <LinearLayout
                 android:id="@+id/Layout_Menu3"
@@ -128,7 +128,7 @@
                     android:layout_height="match_parent"
                     android:layout_marginLeft="15dp"
                     android:gravity="center_vertical"
-                    android:text="消息"
+                    android:text="我的话题"
                     android:textSize="20sp"/>
             </LinearLayout>
             <LinearLayout
@@ -144,14 +144,15 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingLeft="50dp"
-                    android:src="@mipmap/ic_drawer_offline_normal"/>
+                    android:src="@mipmap/ic_drawer_favorite_normal"
+                    android:id="@+id/imageView"/>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginLeft="15dp"
                     android:gravity="center_vertical"
-                    android:text="离线"
+                    android:text="收藏"
                     android:textSize="20sp"/>
             </LinearLayout>
             <LinearLayout
@@ -197,7 +198,7 @@
                     android:layout_height="match_parent"
                     android:layout_marginLeft="15dp"
                     android:gravity="center_vertical"
-                    android:text="设置"
+                    android:text="商城"
                     android:textSize="20sp"/>
             </LinearLayout>
             <LinearLayout
@@ -243,7 +244,7 @@
                     android:layout_height="match_parent"
                     android:layout_marginLeft="15dp"
                     android:gravity="center_vertical"
-                    android:text="精彩应用"
+                    android:text="我要爆料"
                     android:textSize="20sp"/>
             </LinearLayout>
 

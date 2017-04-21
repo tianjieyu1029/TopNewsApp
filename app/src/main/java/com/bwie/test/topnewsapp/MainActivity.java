@@ -30,6 +30,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.bwie.test.topnewsapp.activity.HomePagerActivity;
 import com.bwie.test.topnewsapp.activity.LoginActivity;
+import com.bwie.test.topnewsapp.activity.PhoneLoginActivity;
 import com.bwie.test.topnewsapp.adapters.MyIndicatorAdapter;
 import com.bwie.test.topnewsapp.adapters.MyViewPagerAdapter;
 import com.bwie.test.topnewsapp.beans.SQLiteTitle;
@@ -43,7 +44,6 @@ import com.bwie.test.topnewsapp.utils.Night_styleutils;
 import com.bwie.test.topnewsapp.utils.URLUtils;
 import com.bwie.test.topnewsapp.utils.UiUtils;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
-import com.tencent.tauth.Tencent;
 import com.umeng.socialize.UMAuthListener;
 import com.umeng.socialize.UMShareAPI;
 import com.umeng.socialize.bean.SHARE_MEDIA;
@@ -79,7 +79,11 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout after_login_layout;
     private LinearLayout before_login_layout;
     private SharedPreferences.Editor editor;
-    private int LOGINSTATEQQ = 10001;
+    private int state = 0;
+    private static final int QQLOGINSTATE = 1;
+    private static final int WBLOGINSTATE = 2;
+    private static final int PHONESTATE = 0;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -130,24 +134,6 @@ public class MainActivity extends AppCompatActivity {
 
     //读取数据库
     private void readDatabase() {
-       /* TitleDB titles = new TitleDB();
-        DbManager dbManager = MyXUtils.dataBaseXUtils("TopNews.db", 1);
-        try {
-            ArrayList<TitleDB> titleDB = (ArrayList<TitleDB>) titles.getTitleDB(dbManager);
-            ArrayList<NewsBean> list = new ArrayList<>();
-            ArrayList<String> stringList = new ArrayList<>();
-            for (int i=0;i<titleDB.size();i++){
-                list.add(new NewsBean(titleDB.get(i).getTitle(),titleDB.get(i).getUri()));
-                stringList.add(titleDB.get(i).getTitle());
-            }
-            initIndicator(stringList);
-            initFragment(list);
-        } catch (DbException e) {
-            e.printStackTrace();
-        }*/
-        //MySQLiteOpenHelper helper = new MySQLiteOpenHelper(this);
-        //SQLiteDatabase database = helper.getWritableDatabase();
-        //String query = "select * from title where state=0";
         Cursor cursor = database.query(
                 "title", null, "state=?", new String[]{"0"}, null, null, null);
         //titleName text,uri text,state Integer
@@ -168,11 +154,6 @@ public class MainActivity extends AppCompatActivity {
     //侧滑
     private void initSlidingMenu() {
 
-       /* setBehindContentView(R.layout.menu_frame_left);
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.menu_frame, new LeftFragment()).commit();*/
-        // 实例化滑动菜单对象
-        //menu = getSlidingMenu();
         menu = new SlidingMenu(this);
         menu.attachToActivity(MainActivity.this, SlidingMenu.SLIDING_CONTENT);
         menu.setMenu(R.layout.slidingmenu);
@@ -316,7 +297,7 @@ public class MainActivity extends AppCompatActivity {
         qq_image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                login();
+                loginQQ();
             }
         });
         after_login_layout.setOnClickListener(new View.OnClickListener() {
@@ -326,10 +307,27 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        weibo_image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loginWB();
+            }
+        });
+        phone_image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, PhoneLoginActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
+
     //第三方QQ登录
-    public void login() {
+    public void loginQQ() {
+        state = QQLOGINSTATE;
+        /*editor.putInt("state",QQLOGINSTATE);
+        editor.commit();*/
         UMShareAPI.get(this).getPlatformInfo(MainActivity.this, SHARE_MEDIA.QQ, umAuthListener);
     }
 
@@ -338,15 +336,28 @@ public class MainActivity extends AppCompatActivity {
         public void onStart(SHARE_MEDIA platform) {
             //授权开始的回调
         }
+
         @Override
         public void onComplete(SHARE_MEDIA platform, int action, Map<String, String> data) {
             Toast.makeText(getApplicationContext(), "Authorize succeed", Toast.LENGTH_SHORT).show();
-
-            String name = data.get("name");
-            String iconurl = data.get("iconurl");
-            editor.putString("QQName", name);
-            editor.putString("QQPic", iconurl);
-            editor.putBoolean("flag", true);
+            String name = null;
+            String iconurl = null;
+            if (state == QQLOGINSTATE) {
+                name = data.get("name");
+                iconurl = data.get("iconurl");
+                editor.putString("QQName", name);
+                editor.putString("QQPic", iconurl);
+                editor.putBoolean("flag", true);
+                editor.commit();
+            } else if (state == WBLOGINSTATE) {
+                name = data.get("name");
+                iconurl = data.get("iconurl");
+                editor.putString("QQName", name);
+                editor.putString("QQPic", iconurl);
+                editor.putBoolean("flag", true);
+                editor.commit();
+            }
+            editor.putInt("state", state);
             editor.commit();
             after_login_layout.setVisibility(View.VISIBLE);
             before_login_layout.setVisibility(View.GONE);
@@ -355,12 +366,12 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onError(SHARE_MEDIA platform, int action, Throwable t) {
-            Toast.makeText( getApplicationContext(), "Authorize fail", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Authorize fail", Toast.LENGTH_SHORT).show();
         }
 
         @Override
         public void onCancel(SHARE_MEDIA platform, int action) {
-            Toast.makeText( getApplicationContext(), "Authorize cancel", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Authorize cancel", Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -390,13 +401,21 @@ public class MainActivity extends AppCompatActivity {
                 });
         after_login_text.setText(nickName);
     }
+    //第三方微博登录
+
+    private void loginWB() {
+        state = WBLOGINSTATE;
+        /*editor.putInt("state",WBLOGINSTATE);
+        editor.commit();*/
+        UMShareAPI.get(this).getPlatformInfo(MainActivity.this, SHARE_MEDIA.SINA, umAuthListener);
+
+    }
 
     //回调
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        UMShareAPI.get(this).onActivityResult(requestCode,resultCode,data);
-
+        UMShareAPI.get(this).onActivityResult(requestCode, resultCode, data);
     }
 
     //判断显示隐藏
@@ -407,13 +426,42 @@ public class MainActivity extends AppCompatActivity {
         editor = preferencesLogin.edit();
         //flag是判断登录状态
         boolean flag = preferencesLogin.getBoolean("flag", false);
+        int state = preferencesLogin.getInt("state", 0);
         if (flag) {
             after_login_layout.setVisibility(View.VISIBLE);
             before_login_layout.setVisibility(View.GONE);
-            if (LOGINSTATEQQ == Tencent.REQUEST_LOGIN) {
+            if (state == QQLOGINSTATE) {
                 String qqName = preferencesLogin.getString("QQName", "");
                 String qqPic = preferencesLogin.getString("QQPic", "");
                 setLoginInfo(qqName, qqPic);
+            } else if (state == WBLOGINSTATE) {
+                String qqName = preferencesLogin.getString("QQName", "");
+                String qqPic = preferencesLogin.getString("QQPic", "");
+                setLoginInfo(qqName, qqPic);
+            }else if (state == PHONESTATE){
+                String qqName = preferencesLogin.getString("QQName", "");
+                int qqPic = preferencesLogin.getInt("QQPic", 0);
+                Glide.with(MainActivity.this).load(qqPic).asBitmap().centerCrop().
+                        into(new BitmapImageViewTarget(mine_image) {
+                            @Override
+                            protected void setResource(Bitmap resource) {
+                                RoundedBitmapDrawable circularBitmapDrawable =
+                                        RoundedBitmapDrawableFactory.create(getResources(), resource);
+                                circularBitmapDrawable.setCircular(true);
+                                mine_image.setImageDrawable(circularBitmapDrawable);
+                            }
+                        });
+                Glide.with(MainActivity.this).load(qqPic).asBitmap().centerCrop().
+                        into(new BitmapImageViewTarget(after_login_image) {
+                            @Override
+                            protected void setResource(Bitmap resource) {
+                                RoundedBitmapDrawable circularBitmapDrawable =
+                                        RoundedBitmapDrawableFactory.create(getResources(), resource);
+                                circularBitmapDrawable.setCircular(true);
+                                after_login_image.setImageDrawable(circularBitmapDrawable);
+                            }
+                        });
+                after_login_text.setText(qqName);
             }
         } else {
             mine_image.setImageResource(R.mipmap.mine_titlebar_normal);
@@ -421,6 +469,7 @@ public class MainActivity extends AppCompatActivity {
             before_login_layout.setVisibility(View.VISIBLE);
         }
     }
+
     //初始化控件
     private void initView() {
         layout = (RelativeLayout) findViewById(R.id.main_title);
@@ -456,18 +505,20 @@ public class MainActivity extends AppCompatActivity {
         after_login_layout = (LinearLayout) view.findViewById(R.id.after_login_layout);
         before_login_layout = (LinearLayout) view.findViewById(R.id.before_login_layout);
     }
+
     //双击退出
-    private long firstTime=0;
+    private long firstTime = 0;
+
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        switch (keyCode){
+        switch (keyCode) {
             case KeyEvent.KEYCODE_BACK:
-                long secondTime=System.currentTimeMillis();
-                if(secondTime-firstTime>2000){
-                    Toast.makeText(MainActivity.this,"再按一次退出程序",Toast.LENGTH_SHORT).show();
-                    firstTime=secondTime;
+                long secondTime = System.currentTimeMillis();
+                if (secondTime - firstTime > 2000) {
+                    Toast.makeText(MainActivity.this, "再按一次退出程序", Toast.LENGTH_SHORT).show();
+                    firstTime = secondTime;
                     return true;
-                }else{
+                } else {
                     System.exit(0);
                 }
                 break;

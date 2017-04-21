@@ -110,6 +110,17 @@ public class ProtraitUtils {
         Bundle bundle = data.getExtras();
         Bitmap bitmap = (Bitmap) bundle.get("data");
         imageView.setImageBitmap(bitmap);
+      /* File file = new File(Environment.getExternalStorageDirectory(),
+                System.currentTimeMillis() + ".jpg");
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        //设置图片拍摄后保存的位置
+        data.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));*/
     }
 
     /**

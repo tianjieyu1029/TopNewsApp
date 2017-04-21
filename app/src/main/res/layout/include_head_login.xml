@@ -37,6 +37,7 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="1dp"
+        android:id="@+id/iv_view_include_head_login"
         android:layout_alignBottom="@id/tv_back_include_head_login"
         android:background="#999999"/>
 </RelativeLayout>

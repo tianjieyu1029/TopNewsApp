@@ -17,7 +17,10 @@ import cn.smssdk.SMSSDK;
 
 public class MyApp extends Application {
     {
+        PlatformConfig.setWeixin("wx967daebe835fbeac", "5bb696d9ccd75a38c8a0bfe0675559b3");
         PlatformConfig.setQQZone("1106034403", "XbCJuzd68e1ipMWu");
+        PlatformConfig.setSinaWeibo("2602983103", "8844474daf4e10dd6a5f41aeb3a0d663", "http://sns.whalecloud.com");
+
         //PlatformConfig.setQQZone("1106034403","XbCJuzd68e1ipMWu");
     }
     @Override

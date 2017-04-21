@@ -1,5 +1,6 @@
 package com.bwie.test.topnewsapp.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -29,7 +30,22 @@ public class PwdBackActivity extends AppCompatActivity implements View.OnClickLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pwd_back);
         initView();
+        onClickAll();
+    }
 
+    private void onClickAll() {
+        iv_clear_pwd_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                et_number_pwd_back.setText("");
+            }
+        });
+        iv_back_include_head_login.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 
 
@@ -48,7 +64,7 @@ public class PwdBackActivity extends AppCompatActivity implements View.OnClickLi
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_login_pwd_back:
-
+                submit();
                 break;
         }
     }
@@ -60,9 +76,10 @@ public class PwdBackActivity extends AppCompatActivity implements View.OnClickLi
             Toast.makeText(this, "请输入手机号", Toast.LENGTH_SHORT).show();
             return;
         }
-
         // TODO validate success, do something
-
-
+        Intent intent = new Intent(PwdBackActivity.this,PwdBackCAPTCHA.class);
+        intent.putExtra("phone",back);
+        startActivity(intent);
+        finish();
     }
 }

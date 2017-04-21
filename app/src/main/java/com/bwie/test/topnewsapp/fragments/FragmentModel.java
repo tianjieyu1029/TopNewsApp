@@ -22,6 +22,7 @@ import com.bwie.test.topnewsapp.utils.GsonUtils;
 import com.bwie.test.topnewsapp.utils.MySQLiteOpenHelper;
 import com.bwie.test.topnewsapp.utils.MyXUtils;
 import com.bwie.test.topnewsapp.utils.URLUtils;
+import com.github.nuptboyzhb.lib.SuperSwipeRefreshLayout;
 
 import java.util.ArrayList;
 
@@ -36,6 +37,7 @@ public class FragmentModel extends Fragment {
     private RecyclerView recycleView;
     private String title;
     private SQLiteDatabase database;
+    private SuperSwipeRefreshLayout superSwipe;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -60,6 +62,44 @@ public class FragmentModel extends Fragment {
         MySQLiteOpenHelper helper = new MySQLiteOpenHelper(getActivity());
         database = helper.getWritableDatabase();
         initData();
+        initRefresh();
+    }
+
+    private void initRefresh() {
+        superSwipe.setOnPullRefreshListener(new SuperSwipeRefreshLayout.OnPullRefreshListener() {
+            @Override
+            public void onRefresh() {
+
+            }
+
+            @Override
+            public void onPullDistance(int distance) {
+
+            }
+
+            @Override
+            public void onPullEnable(boolean enable) {
+
+            }
+        });
+        View view = View.inflate(getActivity(), R.layout.refresh_foot_layout,null);
+        superSwipe.setFooterView(view);
+        superSwipe.setOnPushLoadMoreListener(new SuperSwipeRefreshLayout.OnPushLoadMoreListener() {
+            @Override
+            public void onLoadMore() {
+
+            }
+
+            @Override
+            public void onPushDistance(int distance) {
+
+            }
+
+            @Override
+            public void onPushEnable(boolean enable) {
+
+            }
+        });
     }
 
     private void initData() {
@@ -67,7 +107,7 @@ public class FragmentModel extends Fragment {
             @Override
             public void onSuccess(String result) {
                 JsonBean jsonBean = GsonUtils.gsonToBean(result, JsonBean.class);
-                ArrayList<JsonBean.ResultBean.DataBean> data = (ArrayList<JsonBean.ResultBean.DataBean>) jsonBean.getResult().getData();
+                final ArrayList<JsonBean.ResultBean.DataBean> data = (ArrayList<JsonBean.ResultBean.DataBean>) jsonBean.getResult().getData();
                     ContentValues values = new ContentValues();
                 final ArrayList<SQLiteContent> conList = new ArrayList<>();
                 for (int i = 0; i < data.size(); i++) {
@@ -102,6 +142,8 @@ public class FragmentModel extends Fragment {
                     public void onItemClick(View view, int position) {
                         Intent intent = new Intent(getActivity(), NextActivity.class);
                         intent.putExtra("url", conList.get(position).getUrl());
+                        intent.putExtra("title",conList.get(position).getAuthor_name());
+                        intent.putExtra("content",conList.get(position).getTitle());
                         getActivity().startActivity(intent);
                     }
                 });
@@ -119,6 +161,7 @@ public class FragmentModel extends Fragment {
             }
         });
     }
+
 
     private void readDatabase() {
         /*ContentDB content = new ContentDB();
@@ -175,14 +218,12 @@ public class FragmentModel extends Fragment {
 
     private void initView(View view) {
         recycleView = (RecyclerView) view.findViewById(R.id.recycleView);
-        ArrayList<SQLiteContent> arrayList = new ArrayList<>();
+        superSwipe = (SuperSwipeRefreshLayout) view.findViewById(R.id.superSwipe);
+        /*ArrayList<SQLiteContent> arrayList = new ArrayList<>();
         MyRecyclerAdapter notAdapter = new MyRecyclerAdapter(arrayList);
         LinearLayoutManager notManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
-
         recycleView.setLayoutManager(notManager);
-        recycleView.setAdapter(notAdapter);
-
-
+        recycleView.setAdapter(notAdapter);*/
     }
 
     public static FragmentModel newInstance(String url, String title) {

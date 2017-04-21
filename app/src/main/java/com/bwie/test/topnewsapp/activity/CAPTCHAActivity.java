@@ -17,6 +17,9 @@ import android.widget.Toast;
 import com.bwie.test.topnewsapp.R;
 import com.bwie.test.topnewsapp.utils.Night_styleutils;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import cn.smssdk.EventHandler;
 import cn.smssdk.SMSSDK;
 
@@ -25,25 +28,29 @@ public class CAPTCHAActivity extends AppCompatActivity implements View.OnClickLi
 
 
     public int T = 60; //倒计时时长
+    boolean flag = true;
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
            /* if (msg.what == 1)
                 Toast.makeText(CAPTCHAActivity.this, "回调完成", Toast.LENGTH_SHORT).show();
-            else*/ if (msg.what == 2)
-                Toast.makeText(CAPTCHAActivity.this, "提交验证码成功", Toast.LENGTH_SHORT).show();
-            else if (msg.what == 3)
+            else*/
+            if (msg.what == 2) {
+                flag = true;
+            } /*else if (msg.what == 3) {
                 Toast.makeText(CAPTCHAActivity.this, "获取验证码成功", Toast.LENGTH_SHORT).show();
-            else if (msg.what == 4)
+            } else if (msg.what == 4) {
                 Toast.makeText(CAPTCHAActivity.this, "返回支持发送国家验证码", Toast.LENGTH_SHORT).show();
+            }*//*else{
+                Toast.makeText(CAPTCHAActivity.this, "验证码错误", Toast.LENGTH_SHORT).show();
+            }*/
         }
 
     };
 
 
     private String phone;
-    private EditText pwdEdit;
     private ImageView iv_back_include_head_login;
     private TextView tv_back_include_head_login;
     private TextView tv_right_include_head_login;
@@ -53,6 +60,10 @@ public class CAPTCHAActivity extends AppCompatActivity implements View.OnClickLi
     private EditText et_pwd_captcha;
     private Button btn_login_captcha;
     private int theme = 0;
+    private String pwd;
+    private EditText et_email_captcha;
+    private String email;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Night_styleutils.changeStyle(this, theme, savedInstanceState);
@@ -93,12 +104,13 @@ public class CAPTCHAActivity extends AppCompatActivity implements View.OnClickLi
         et_pwd_captcha.setOnClickListener(this);
         btn_login_captcha = (Button) findViewById(R.id.btn_login_captcha);
         btn_login_captcha.setOnClickListener(this);
+        et_email_captcha = (EditText) findViewById(R.id.et_email_captcha);
     }
 
     private void submit() {
         // validate
         String code = et_captcha_captcha.getText().toString().trim();
-        String pwd = et_pwd_captcha.getText().toString().trim();
+        pwd = et_pwd_captcha.getText().toString().trim();
         if (TextUtils.isEmpty(code)) {
             Toast.makeText(this, "请输入验证码", Toast.LENGTH_SHORT).show();
             return;
@@ -111,22 +123,26 @@ public class CAPTCHAActivity extends AppCompatActivity implements View.OnClickLi
             Toast.makeText(this, "密码长度应大于6位且小于20位", Toast.LENGTH_SHORT).show();
             return;
         }
+        email = et_email_captcha.getText().toString().trim();
+        if (TextUtils.isEmpty(email)){
+            Toast.makeText(this, "请输入邮箱", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        boolean emailAddress = isEmailAddress(email);
+        if (!emailAddress){
+            Toast.makeText(this, "请输入正确的邮箱", Toast.LENGTH_SHORT).show();
+            return;
+        }
         // TODO validate success, do something
         SMSSDK.submitVerificationCode("86", phone, code);
-      /*  DbManager dbManager = MyXUtils.dataBaseXUtils("TopNews.db", 1);
-        UserBean userBean = new UserBean();
-        userBean.setPhone(phone);
-        userBean.setPwd(pwd);
-        try {
-            dbManager.save(userBean);
-        } catch (DbException e) {
-            e.printStackTrace();
-        }*/
-        Intent intent = new Intent(CAPTCHAActivity.this, UserInfoSetActivity.class);
-        intent.putExtra("phone", phone);
-        intent.putExtra("pwd", pwd);
-        startActivity(intent);
-        finish();
+
+    }
+    //判断邮箱
+    public static boolean isEmailAddress(String url) {
+        String check = "^([a-z0-9A-Z]+[-|_|\\.]?)+[a-z0-9A-Z]@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-zA-Z]{2,}$";
+        Pattern regex = Pattern.compile(check);
+        Matcher matcher = regex.matcher(url);
+        return matcher.matches();
     }
 
     @Override
@@ -139,13 +155,28 @@ public class CAPTCHAActivity extends AppCompatActivity implements View.OnClickLi
                 break;
             case R.id.btn_login_captcha:
                 submit();
+                if (flag){
+                    Toast.makeText(CAPTCHAActivity.this, "提交验证码成功", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(CAPTCHAActivity.this, UserInfoSetActivity.class);
+                    intent.putExtra("phone", phone);
+                    intent.putExtra("pwd", pwd);
+                    intent.putExtra("email",email);
+                    startActivity(intent);
+                    finish();
+                }else{
+                    Toast.makeText(CAPTCHAActivity.this, "验证码错误", Toast.LENGTH_SHORT).show();
+                }
                 break;
         }
     }
 
+    private EventHandler eh;
+
     private void sendCAPTCHA(String phone) {
         //回调函数
-        EventHandler eh = new EventHandler() {
+
+
+        eh = new EventHandler() {
             @Override
             public void afterEvent(int event, int result, Object data) {
                 if (result == SMSSDK.RESULT_COMPLETE) {
@@ -171,6 +202,7 @@ public class CAPTCHAActivity extends AppCompatActivity implements View.OnClickLi
         // SMSSDK.initSDK(this, "您的appkey", "您的appsecret");//初始化
         SMSSDK.registerEventHandler(eh); //注册短信回调
         SMSSDK.getVerificationCode("86", phone);//请求获取短信验证码
+
     }
 
 
@@ -209,5 +241,12 @@ public class CAPTCHAActivity extends AppCompatActivity implements View.OnClickLi
             T = 60; //最后再恢复倒计时时长
         }
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        SMSSDK.unregisterEventHandler(eh);
+    }
+
 }
 

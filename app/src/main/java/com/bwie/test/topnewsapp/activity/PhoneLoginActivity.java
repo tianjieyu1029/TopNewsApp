@@ -1,6 +1,7 @@
 package com.bwie.test.topnewsapp.activity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -11,8 +12,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.blankj.utilcode.util.RegexUtils;
 import com.bwie.test.topnewsapp.R;
 import com.bwie.test.topnewsapp.utils.Night_styleutils;
+import com.bwie.test.topnewsapp.utils.VolleyUtils;
+
+import java.util.HashMap;
 
 public class PhoneLoginActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -26,6 +31,7 @@ public class PhoneLoginActivity extends AppCompatActivity implements View.OnClic
     private TextView tv_pwd_phone_login;
     private Button btn_login_phone_login;
     private int theme = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Night_styleutils.changeStyle(this, theme, savedInstanceState);
@@ -71,7 +77,7 @@ public class PhoneLoginActivity extends AppCompatActivity implements View.OnClic
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_login_phone_login:
-
+                submit();
                 break;
             case R.id.tv_register_phone_login:
                 Intent intent = new Intent(PhoneLoginActivity.this, PhoneRegisterActivity.class);
@@ -99,9 +105,37 @@ public class PhoneLoginActivity extends AppCompatActivity implements View.OnClic
             Toast.makeText(this, "请输入密码", Toast.LENGTH_SHORT).show();
             return;
         }
+        boolean mobileExact = RegexUtils.isMobileExact(phone);
+        /*if (!mobileExact){
+            Toast.makeText(this, "手机号码有误", Toast.LENGTH_SHORT).show();
+            return;
+        }*/
 
+        // http://192.168.23.226/mobile/index.php?act=login&username=qqqqqqqq&password=qq&client=android
         // TODO validate success, do something
+        HashMap<String, String> map = new HashMap<>();
+        map.put("username", phone);
+        map.put("password", pwd);
+        map.put("client", "android");
+        VolleyUtils.post(this, VolleyUtils.LINK_MOBILE_LOGIN, map, new VolleyUtils.MyCallback() {
+            @Override
+            public void onSuccess(String result) {
+                Toast.makeText(PhoneLoginActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
+                SharedPreferences preferences = getSharedPreferences("config", MODE_PRIVATE);
+                SharedPreferences.Editor edit = preferences.edit();
+                edit.putInt("state", 0);
+                edit.putBoolean("flag", true);
+                edit.putString("QQName", "佚名");
+                edit.putInt("QQPic", R.mipmap.twitter_popover);
+                edit.commit();
+                finish();
+            }
 
+            @Override
+            public void onError(String errorMsg) {
+                Toast.makeText(PhoneLoginActivity.this, "登录失败", Toast.LENGTH_SHORT).show();
+            }
+        });
 
     }
 }
