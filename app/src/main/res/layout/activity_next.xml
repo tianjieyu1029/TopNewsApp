@@ -14,9 +14,9 @@
              android:layout_weight="1"></WebView>
     <LinearLayout android:layout_width="match_parent"
                   android:layout_height="wrap_content"
-                  android:paddingTop="10dp"
-                  android:paddingBottom="10dp"
-                  android:orientation="horizontal">
+                  android:orientation="horizontal"
+
+                  android:paddingTop="10dp">
         <LinearLayout android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
                       android:orientation="horizontal">
@@ -34,7 +34,7 @@
                       android:textColor="#999999"/>
         </LinearLayout>
         <LinearLayout android:layout_width="0dp"
-                      android:layout_height="wrap_content"
+                      android:layout_height="35dp"
                       android:layout_weight="1"
                       android:orientation="horizontal"
         >
@@ -43,15 +43,18 @@
                        android:layout_weight="1"
                        android:src="@mipmap/ic_action_comment_normal"
             />
-            <ImageView android:layout_width="0dp"
-                       android:layout_height="wrap_content"
-                       android:layout_weight="1"
-                       android:src="@mipmap/ic_action_favor_normal"
+            <CheckBox android:layout_width="0dp"
+                         android:layout_height="wrap_content"
+                         android:layout_weight="1"
+                         android:button="@null"
+
+                         android:drawableTop="@drawable/ic_action_favor"
+
             />
-            <ImageView android:layout_width="0dp"
+            <ImageView android:id="@+id/next_share_image"
+                       android:layout_width="0dp"
                        android:layout_height="wrap_content"
                        android:layout_weight="1"
-                       android:id="@+id/next_share_image"
                        android:src="@mipmap/ic_action_repost_normal"
             />
             <ImageView android:layout_width="0dp"

@@ -22,7 +22,8 @@ public class AccountActivity extends AppCompatActivity implements View.OnClickLi
     private ImageView iv_back_include_head_login;
     private TextView tv_back_include_head_login;
     private Button acc_button;
-private int theme = 0;
+    private int theme = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Night_styleutils.changeStyle(this, theme, savedInstanceState);
@@ -45,7 +46,8 @@ private int theme = 0;
         });
         tv_back_include_head_login.setText("账号管理");
     }
-    private void setExit(){
+
+    private void setExit() {
         UMShareAPI.get(AccountActivity.this).deleteOauth(this, SHARE_MEDIA.QQ, new UMAuthListener() {
             @Override
             public void onStart(SHARE_MEDIA share_media) {
