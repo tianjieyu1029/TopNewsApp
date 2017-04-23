@@ -4,9 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 
 /**
- * data:2017/4/14
- * author:郭彦君(Administrator)
- * function:
+ * 夜间模式
  */
 public class Night_styleutils {
     private Context context;

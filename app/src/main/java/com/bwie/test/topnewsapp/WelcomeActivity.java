@@ -3,6 +3,7 @@ package com.bwie.test.topnewsapp;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -13,6 +14,7 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
+import com.bwie.test.topnewsapp.utils.ImmersionStatusBar;
 
 public class WelcomeActivity extends AppCompatActivity {
 
@@ -30,6 +32,7 @@ public class WelcomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
+        ImmersionStatusBar.setStatusBar(this, Color.TRANSPARENT);
         initView();
         initData();
 

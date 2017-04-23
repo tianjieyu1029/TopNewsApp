@@ -448,7 +448,7 @@ public class MainActivity extends AppCompatActivity {
                 String qqName = preferencesLogin.getString("QQName", "");
                 String qqPic = preferencesLogin.getString("QQPic", "");
                 setLoginInfo(qqName, qqPic);
-            }else if (state == PHONESTATE){
+            } else if (state == PHONESTATE) {
                 String qqName = preferencesLogin.getString("QQName", "");
                 int qqPic = preferencesLogin.getInt("QQPic", 0);
                 Glide.with(MainActivity.this).load(qqPic).asBitmap().centerCrop().

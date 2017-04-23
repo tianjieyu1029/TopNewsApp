@@ -2,6 +2,7 @@ package com.bwie.test.topnewsapp;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -11,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bwie.test.topnewsapp.utils.ImmersionStatusBar;
 import com.umeng.socialize.ShareAction;
 import com.umeng.socialize.UMShareAPI;
 import com.umeng.socialize.UMShareConfig;
@@ -31,6 +33,7 @@ public class NextActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_next);
+        ImmersionStatusBar.setStatusBar(this, Color.parseColor("#CE2E2A"));
         initView();
         UMShareConfig config = new UMShareConfig();
         //是否需求重复授权用户信息
@@ -74,14 +77,12 @@ public class NextActivity extends AppCompatActivity {
         next_share_image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
                 //UMImage image = new UMImage(NextActivity.this, url);//资源文件
                 UMWeb umWeb = new UMWeb(url);
                 umWeb.setTitle(title);
                 umWeb.setDescription(content);
+                //开启分享平台
                 new ShareAction(NextActivity.this).withText("")
-
                         .withMedia(umWeb)
                         .setDisplayList(SHARE_MEDIA.SINA, SHARE_MEDIA.QQ, SHARE_MEDIA.WEIXIN,
                                 SHARE_MEDIA.WEIXIN_CIRCLE, SHARE_MEDIA.QZONE,
