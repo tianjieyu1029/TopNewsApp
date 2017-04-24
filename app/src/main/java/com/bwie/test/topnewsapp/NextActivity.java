@@ -1,18 +1,25 @@
 package com.bwie.test.topnewsapp;
 
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bwie.test.topnewsapp.utils.ImmersionStatusBar;
+import com.bwie.test.topnewsapp.utils.MySQLiteOpenHelper;
 import com.umeng.socialize.ShareAction;
 import com.umeng.socialize.UMShareAPI;
 import com.umeng.socialize.UMShareConfig;
@@ -28,12 +35,17 @@ public class NextActivity extends AppCompatActivity {
     private TextView tv_back_include_head_login;
     private TextView tv_right_include_head_login;
     private ImageView next_share_image;
+    private CheckBox checkBox;
+    private MySQLiteOpenHelper helper;
+    private SharedPreferences favor;
+    private SharedPreferences.Editor edit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_next);
         ImmersionStatusBar.setStatusBar(this, Color.parseColor("#CE2E2A"));
+        helper = new MySQLiteOpenHelper(this);
         initView();
         UMShareConfig config = new UMShareConfig();
         //是否需求重复授权用户信息
@@ -51,6 +63,7 @@ public class NextActivity extends AppCompatActivity {
         final String url = intent.getStringExtra("url");
         final String title = intent.getStringExtra("title");
         final String content = intent.getStringExtra("content");
+        final String pic = intent.getStringExtra("pic");
         if (webView != null) {
             webView.setWebViewClient(new WebViewClient() {
                 @Override
@@ -88,6 +101,36 @@ public class NextActivity extends AppCompatActivity {
                                 SHARE_MEDIA.WEIXIN_CIRCLE, SHARE_MEDIA.QZONE,
                                 SHARE_MEDIA.WEIXIN_FAVORITE, SHARE_MEDIA.FACEBOOK)
                         .setCallback(umShareListener).open();
+            }
+        });
+        //收藏
+        boolean flag = false;
+        SQLiteDatabase database = helper.getWritableDatabase();
+        Cursor cursor = database.query("favor", null, "url = ?",new String[]{url} , null, null, null);
+        if (cursor.moveToNext()){
+            flag = true;
+        }else{
+            flag = false;
+        }
+        checkBox.setChecked(flag);
+        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked){
+                    SQLiteDatabase database = helper.getWritableDatabase();
+                    ContentValues values = new ContentValues();
+                    //title text,pic text,url text,author_name text
+                    values.put("author_name", title);
+                    values.put("title",content);
+                    values.put("url",url);
+                    values.put("pic",pic);
+                    database.insert("favor",null,values);
+                }else{
+                    SQLiteDatabase database = helper.getWritableDatabase();
+                    if (database!=null) {
+                        database.delete("favor","title=?",new String[]{content});
+                    }
+                }
             }
         });
     }
@@ -151,7 +194,7 @@ public class NextActivity extends AppCompatActivity {
         tv_right_include_head_login.setText("");
         tv_right_include_head_login.setBackgroundResource(R.mipmap.show_title_details_normal);
         next_share_image = (ImageView) findViewById(R.id.next_share_image);
-
+        checkBox = (CheckBox) findViewById(R.id.next_favor_checkBox);
     }
 
 }

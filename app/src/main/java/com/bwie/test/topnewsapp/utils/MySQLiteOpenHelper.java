@@ -21,6 +21,10 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
         String create_content = "create table content(id Integer primary key autoincrement," +
                 "title text,pic text,url text,date text,category text,author_name text)";
         db.execSQL(create_content);
+        String create_favor = "create table favor(id Integer primary key autoincrement," +
+                "title text,pic text,url text,author_name text)";
+        db.execSQL(create_favor);
+
     }
 
     @Override

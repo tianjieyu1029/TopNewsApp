@@ -144,6 +144,7 @@ public class FragmentModel extends Fragment {
                         intent.putExtra("url", conList.get(position).getUrl());
                         intent.putExtra("title",conList.get(position).getAuthor_name());
                         intent.putExtra("content",conList.get(position).getTitle());
+                        intent.putExtra("pic",conList.get(position).getPic());
                         getActivity().startActivity(intent);
                     }
                 });

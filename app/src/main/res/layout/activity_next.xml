@@ -48,7 +48,7 @@
                          android:layout_height="wrap_content"
                          android:layout_weight="1"
                          android:button="@null"
-
+                        android:id="@+id/next_favor_checkBox"
                          android:drawableTop="@drawable/ic_action_favor"
 
             />
