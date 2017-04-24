@@ -64,4 +64,5 @@ dependencies {
     compile files('libs/weiboSDKCore_3.1.4.jar')
     compile project(':lib')
     compile 'eu.the4thfloor.volley:com.android.volley:2015.05.28'
+    compile project(':xlistviewlibrary')
 }

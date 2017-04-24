@@ -11,8 +11,6 @@ import java.util.ArrayList;
 
 /**
  * data:2017/4/24
- * author:郭彦君(Administrator)
- * function:
  */
 public class My_off_line_adapter extends BaseAdapter {
     private Context context;

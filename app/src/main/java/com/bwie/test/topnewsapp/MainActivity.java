@@ -39,6 +39,7 @@ import com.bwie.test.topnewsapp.beans.TitleBean;
 import com.bwie.test.topnewsapp.fragments.FragmentModel;
 import com.bwie.test.topnewsapp.slindingactivities.FavoriteActivity;
 import com.bwie.test.topnewsapp.slindingactivities.Off_line_download;
+import com.bwie.test.topnewsapp.slindingactivities.ShoppingActivity;
 import com.bwie.test.topnewsapp.utils.GsonUtils;
 import com.bwie.test.topnewsapp.utils.ImmersionStatusBar;
 import com.bwie.test.topnewsapp.utils.MySQLiteOpenHelper;
@@ -88,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int PHONESTATE = 0;
     private LinearLayout layout_menu4;
     private Button download;
+    private LinearLayout layout_menu6;
 
 
     @Override
@@ -299,12 +301,14 @@ public class MainActivity extends AppCompatActivity {
                 reload();
             }
         });
+        //第三方QQ登录
         qq_image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 loginQQ();
             }
         });
+        //登录成功后点击layout
         after_login_layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -312,12 +316,14 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        //第三方微博登录
         weibo_image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 loginWB();
             }
         });
+        //手机号登录
         phone_image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -325,6 +331,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        //收藏页跳转
         layout_menu4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -332,10 +339,19 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        //离线下载button
         download.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, Off_line_download.class);
+                startActivity(intent);
+            }
+        });
+        //商城页跳转
+        layout_menu6.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, ShoppingActivity.class);
                 startActivity(intent);
             }
         });
@@ -526,6 +542,7 @@ public class MainActivity extends AppCompatActivity {
         before_login_layout = (LinearLayout) view.findViewById(R.id.before_login_layout);
         layout_menu4 = (LinearLayout) findViewById(R.id.Layout_Menu4);
         download = (Button) findViewById(R.id.download_button);
+        layout_menu6 = (LinearLayout) findViewById(R.id.Layout_Menu6);
     }
 
     //双击退出

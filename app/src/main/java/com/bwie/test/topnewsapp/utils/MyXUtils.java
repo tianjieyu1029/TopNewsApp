@@ -43,6 +43,36 @@ public class MyXUtils {
         });
 
     }
+    public static final String URL_SHOP = "http://www.93.gov.cn/93app/data.do";
+    public void httpXUtilsShop(String values, final MyHttpCallback callback){
+
+        RequestParams params = new RequestParams(URL_SHOP);
+        params.addQueryStringParameter("channelId","0");
+        params.addQueryStringParameter("startNum",values);
+        x.http().post(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                callback.onSuccess(result);
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+                callback.onError(ex.toString());
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+                callback.onFinished();
+
+            }
+        });
+
+    }
     public interface MyHttpCallback {
         void onSuccess(String result);
 

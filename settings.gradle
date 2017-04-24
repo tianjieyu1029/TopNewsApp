@@ -1,1 +1,1 @@
-include ':app', ':magicindicator', ':utilcode', ':library', ':lib'
+include ':app', ':magicindicator', ':utilcode', ':library', ':lib', ':xlistviewlibrary'
