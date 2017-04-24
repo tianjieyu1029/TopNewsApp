@@ -17,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -37,6 +38,7 @@ import com.bwie.test.topnewsapp.beans.SQLiteTitle;
 import com.bwie.test.topnewsapp.beans.TitleBean;
 import com.bwie.test.topnewsapp.fragments.FragmentModel;
 import com.bwie.test.topnewsapp.slindingactivities.FavoriteActivity;
+import com.bwie.test.topnewsapp.slindingactivities.Off_line_download;
 import com.bwie.test.topnewsapp.utils.GsonUtils;
 import com.bwie.test.topnewsapp.utils.ImmersionStatusBar;
 import com.bwie.test.topnewsapp.utils.MySQLiteOpenHelper;
@@ -85,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int WBLOGINSTATE = 2;
     private static final int PHONESTATE = 0;
     private LinearLayout layout_menu4;
+    private Button download;
 
 
     @Override
@@ -329,6 +332,13 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        download.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, Off_line_download.class);
+                startActivity(intent);
+            }
+        });
 
     }
 
@@ -515,6 +525,7 @@ public class MainActivity extends AppCompatActivity {
         after_login_layout = (LinearLayout) view.findViewById(R.id.after_login_layout);
         before_login_layout = (LinearLayout) view.findViewById(R.id.before_login_layout);
         layout_menu4 = (LinearLayout) findViewById(R.id.Layout_Menu4);
+        download = (Button) findViewById(R.id.download_button);
     }
 
     //双击退出

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <CheckBox
+            android:paddingBottom="5dp"
+            android:paddingTop="5dp"
+            android:id="@+id/Off_line_download_CB"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:button="@null"
+            android:drawableRight="@drawable/off_line_download"
+            android:paddingLeft="10dp"
+            android:paddingRight="20dp"
+            android:text="aaa"
+            android:textSize="20sp" />
+    </LinearLayout>
+
+</LinearLayout>

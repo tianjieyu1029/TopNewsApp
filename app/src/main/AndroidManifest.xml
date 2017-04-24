@@ -47,6 +47,7 @@
         </activity>
         <activity android:name=".activity.UserAgreementActivity">
         </activity>
+        <activity android:name=".slindingactivities.Off_line_download"/>
 
         <meta-data
             android:name="UMENG_APPKEY"

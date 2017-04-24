@@ -110,9 +110,10 @@ public class FavoriteActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //...To-do
+                        database.delete("favor","url=?",new String[]{arrayList.get(position).getUrl()});
+
                         arrayList.remove(position);
                         adapter.notifyDataSetChanged();
-                        database.delete("favor","url",new String[]{arrayList.get(position).getUrl()});
                     }
                 });
         normalDialog.setNegativeButton("取消",
@@ -139,8 +140,8 @@ public class FavoriteActivity extends AppCompatActivity {
         tv_back_include_head_login = (TextView) findViewById(R.id.tv_back_include_head_login);
         tv_back_include_head_login.setText("我的收藏");
         tv_right_include_head_login = (TextView) findViewById(R.id.tv_right_include_head_login);
-        tv_right_include_head_login.setVisibility(View.VISIBLE);
-       // tv_right_include_head_login.setText("编辑");
+        //tv_right_include_head_login.setVisibility(View.VISIBLE);
+        //tv_right_include_head_login.setText("编辑");
         favorite_recycler = (RecyclerView) findViewById(R.id.favorite_recycler);
         layout = (LinearLayout) findViewById(R.id.favorite_layout);
     }
