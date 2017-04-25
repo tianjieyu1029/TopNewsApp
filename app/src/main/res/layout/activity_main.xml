@@ -57,7 +57,7 @@
                    android:layout_width="wrap_content"
                    android:layout_height="40dp"
                    android:layout_marginRight="10dp"
-                   android:src="@mipmap/ic_category_expand_dark_normal_night"/>
+                   android:src="@mipmap/addred_channel_titlbar"/>
     </LinearLayout>
 
         <android.support.v4.view.ViewPager

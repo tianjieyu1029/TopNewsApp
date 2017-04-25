@@ -37,8 +37,6 @@ public class NextActivity extends AppCompatActivity {
     private ImageView next_share_image;
     private CheckBox checkBox;
     private MySQLiteOpenHelper helper;
-    private SharedPreferences favor;
-    private SharedPreferences.Editor edit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -196,5 +194,4 @@ public class NextActivity extends AppCompatActivity {
         next_share_image = (ImageView) findViewById(R.id.next_share_image);
         checkBox = (CheckBox) findViewById(R.id.next_favor_checkBox);
     }
-
 }

@@ -4,14 +4,19 @@ import android.content.ContentValues;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bwie.test.topnewsapp.R;
 import com.bwie.test.topnewsapp.adapters.MyXListView;
 import com.bwie.test.topnewsapp.beans.MyShop;
 import com.bwie.test.topnewsapp.beans.ShopBean;
+import com.bwie.test.topnewsapp.utils.ImmersionStatusBar;
 import com.bwie.test.topnewsapp.utils.MySQLiteOpenHelper;
 import com.bwie.test.topnewsapp.utils.MyXUtils;
 import com.google.gson.Gson;
@@ -33,6 +38,7 @@ public class ShoppingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shopping);
+        ImmersionStatusBar.setStatusBar(this, Color.parseColor("#CE2E2A"));
         helper = new MySQLiteOpenHelper(this);
         SharedPreferences preferences = getSharedPreferences("shop", MODE_PRIVATE);
         edit = preferences.edit();
@@ -118,6 +124,15 @@ public class ShoppingActivity extends AppCompatActivity {
 
     private void initView() {
         xListView = (XListView) findViewById(R.id.xListView);
+        ImageView imageView = (ImageView) findViewById(R.id.iv_back_include_head_login);
+        TextView textView = (TextView) findViewById(R.id.tv_back_include_head_login);
+        textView.setVisibility(View.GONE);
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
         xListView.setPullRefreshEnable(true);
         xListView.setPullLoadEnable(true);
         xListView.setXListViewListener(new XListView.IXListViewListener() {

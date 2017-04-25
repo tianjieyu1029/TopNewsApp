@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +19,7 @@ import com.bwie.test.topnewsapp.NextActivity;
 import com.bwie.test.topnewsapp.R;
 import com.bwie.test.topnewsapp.adapters.MyRecyclerAdapter;
 import com.bwie.test.topnewsapp.beans.SQLiteContent;
+import com.bwie.test.topnewsapp.utils.ImmersionStatusBar;
 import com.bwie.test.topnewsapp.utils.MySQLiteOpenHelper;
 
 import java.util.ArrayList;
@@ -34,6 +36,7 @@ public class FavoriteActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favorite);
+        ImmersionStatusBar.setStatusBar(this, Color.parseColor("#CE2E2A"));
         initView();
 
     }
@@ -114,6 +117,11 @@ public class FavoriteActivity extends AppCompatActivity {
 
                         arrayList.remove(position);
                         adapter.notifyDataSetChanged();
+                        if(arrayList.size()==0){
+                            layout.setVisibility(View.VISIBLE);
+                            favorite_recycler.setVisibility(View.GONE);
+                        }
+
                     }
                 });
         normalDialog.setNegativeButton("取消",
