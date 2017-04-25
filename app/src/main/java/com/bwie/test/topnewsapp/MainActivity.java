@@ -39,6 +39,7 @@ import com.bwie.test.topnewsapp.beans.TitleBean;
 import com.bwie.test.topnewsapp.fragments.FragmentModel;
 import com.bwie.test.topnewsapp.slindingactivities.FavoriteActivity;
 import com.bwie.test.topnewsapp.slindingactivities.Off_line_download;
+import com.bwie.test.topnewsapp.slindingactivities.SettingActivity;
 import com.bwie.test.topnewsapp.slindingactivities.ShoppingActivity;
 import com.bwie.test.topnewsapp.utils.GsonUtils;
 import com.bwie.test.topnewsapp.utils.ImmersionStatusBar;
@@ -90,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout layout_menu4;
     private Button download;
     private LinearLayout layout_menu6;
+    private Button settingButton;
 
 
     @Override
@@ -355,6 +357,14 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        //设置Button
+        settingButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, SettingActivity.class);
+                startActivity(intent);
+            }
+        });
 
     }
 
@@ -543,7 +553,9 @@ public class MainActivity extends AppCompatActivity {
         layout_menu4 = (LinearLayout) findViewById(R.id.Layout_Menu4);
         download = (Button) findViewById(R.id.download_button);
         layout_menu6 = (LinearLayout) findViewById(R.id.Layout_Menu6);
+        settingButton = (Button) findViewById(R.id.setting_button);
     }
+
 
     //双击退出
     private long firstTime = 0;

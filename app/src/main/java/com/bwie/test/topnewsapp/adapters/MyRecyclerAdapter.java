@@ -32,6 +32,10 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.My
         return holder;
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return super.getItemViewType(position);
+    }
 
     @Override
     public void onBindViewHolder(final MyRecyclerAdapter.MyViewHolder holder, int position) {

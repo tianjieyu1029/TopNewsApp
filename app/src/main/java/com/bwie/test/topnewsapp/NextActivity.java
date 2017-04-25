@@ -191,7 +191,7 @@ public class NextActivity extends AppCompatActivity {
         tv_back_include_head_login.setVisibility(View.GONE);
         tv_right_include_head_login = (TextView) findViewById(R.id.tv_right_include_head_login);
         tv_right_include_head_login.setVisibility(View.VISIBLE);
-        tv_right_include_head_login.setText("");
+        tv_right_include_head_login.setText("  ");
         tv_right_include_head_login.setBackgroundResource(R.mipmap.show_title_details_normal);
         next_share_image = (ImageView) findViewById(R.id.next_share_image);
         checkBox = (CheckBox) findViewById(R.id.next_favor_checkBox);

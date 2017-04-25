@@ -293,6 +293,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:button="@null"
+            android:id="@+id/setting_button"
             android:drawablePadding="10dp"
             android:drawableTop="@mipmap/settingicon_leftdrawer_normal"
             android:gravity="center"
