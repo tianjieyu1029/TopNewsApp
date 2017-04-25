@@ -120,7 +120,10 @@ public class MainActivity extends AppCompatActivity {
                 //添加数据
                 initData();
                 Log.d("走没走？", "onCreate: ");
+            }else{
+                Toast.makeText(this, "无网络连接", Toast.LENGTH_SHORT).show();
             }
+
         }
         //所有的监听事件
         onClickAll();

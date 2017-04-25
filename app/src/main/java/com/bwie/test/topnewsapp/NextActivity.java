@@ -3,7 +3,6 @@ package com.bwie.test.topnewsapp;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
@@ -169,7 +168,6 @@ public class NextActivity extends AppCompatActivity {
 
     public void loadUrl(String url) {
         if (webView != null) {
-
             dialog = ProgressDialog.show(this, null, "页面加载中，请稍后..");
             webView.loadUrl(url);
             webView.reload();
