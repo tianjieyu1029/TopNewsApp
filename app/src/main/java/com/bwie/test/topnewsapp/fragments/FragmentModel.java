@@ -9,10 +9,15 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
+import android.widget.Toast;
 
+import com.bwie.test.topnewsapp.MainActivity;
 import com.bwie.test.topnewsapp.NextActivity;
 import com.bwie.test.topnewsapp.R;
 import com.bwie.test.topnewsapp.adapters.MyRecyclerAdapter;
@@ -23,8 +28,12 @@ import com.bwie.test.topnewsapp.utils.MySQLiteOpenHelper;
 import com.bwie.test.topnewsapp.utils.MyXUtils;
 import com.bwie.test.topnewsapp.utils.URLUtils;
 import com.github.nuptboyzhb.lib.SuperSwipeRefreshLayout;
+import com.headerfooter.songhang.library.SmartRecyclerAdapter;
+import com.zaaach.citypicker.CityPickerActivity;
 
 import java.util.ArrayList;
+
+import static android.app.Activity.RESULT_OK;
 
 
 /**
@@ -38,6 +47,8 @@ public class FragmentModel extends Fragment {
     private String title;
     private SQLiteDatabase database;
     private SuperSwipeRefreshLayout superSwipe;
+    private View contentView;
+    private PopupWindow popupWindow;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -82,7 +93,7 @@ public class FragmentModel extends Fragment {
 
             }
         });
-        View view = View.inflate(getActivity(), R.layout.refresh_foot_layout,null);
+        View view = View.inflate(getActivity(), R.layout.refresh_foot_layout, null);
         superSwipe.setFooterView(view);
         superSwipe.setOnPushLoadMoreListener(new SuperSwipeRefreshLayout.OnPushLoadMoreListener() {
             @Override
@@ -103,12 +114,12 @@ public class FragmentModel extends Fragment {
     }
 
     private void initData() {
-        new MyXUtils().httpXUtilsPOST(URLUtils.URL_CONTENT, "uri", path, new MyXUtils.MyHttpCallback() {
+        new MyXUtils().httpXUtilsPOST(URLUtils.URL_NEWS_CONTENT, "uri", path, new MyXUtils.MyHttpCallback() {
             @Override
             public void onSuccess(String result) {
                 JsonBean jsonBean = GsonUtils.gsonToBean(result, JsonBean.class);
                 final ArrayList<JsonBean.ResultBean.DataBean> data = (ArrayList<JsonBean.ResultBean.DataBean>) jsonBean.getResult().getData();
-                    ContentValues values = new ContentValues();
+                ContentValues values = new ContentValues();
                 final ArrayList<SQLiteContent> conList = new ArrayList<>();
                 for (int i = 0; i < data.size(); i++) {
                     //title text,pic text,url text,date text,category text,author_name text
@@ -120,7 +131,7 @@ public class FragmentModel extends Fragment {
                     values.put("author_name", data.get(i).getAuthor_name());
                     database.insert("content", null, values);
                 }
-                for (int i=0;i<data.size();i++){
+                for (int i = 0; i < data.size(); i++) {
                     SQLiteContent e = new SQLiteContent();
                     e.setUrl(data.get(i).getUrl());
                     e.setCategory(data.get(i).getCategory());
@@ -134,17 +145,61 @@ public class FragmentModel extends Fragment {
 
                 MyRecyclerAdapter adapter = new MyRecyclerAdapter(conList);
                 LinearLayoutManager manager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
-
                 recycleView.setLayoutManager(manager);
-                recycleView.setAdapter(adapter);
+
+
+                SmartRecyclerAdapter recyclerAdapter = new SmartRecyclerAdapter(adapter);
+                if (path.equals("bd")) {
+                    View view = View.inflate(getActivity(), R.layout.choose_city_item_layout, null);
+                    recyclerAdapter.setHeaderView(view);
+                    //让布局居中
+                    LinearLayout layout = (LinearLayout) view.findViewById(R.id.choose_city_layout);
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(layout.getLayoutParams());
+                    params.gravity = Gravity.CENTER_VERTICAL;
+                    view.setLayoutParams(params);
+                    layout.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            /*Intent intent = new Intent(getActivity(),CityActivity.class);
+                            startActivity(intent);*/
+                            //启动
+                            startActivityForResult(new Intent(getActivity(), CityPickerActivity.class),
+                                    REQUEST_CODE_PICK_CITY);
+                        }
+                    });
+
+                }
+                adapter.setmOnItemLongClickListener(new MyRecyclerAdapter.OnItemLongClickListener() {
+                    @Override
+                    public void onItemLongClick(View view, int position) {
+
+                        int width = view.getWidth();
+                        int height = view.getHeight();
+                        contentView = View.inflate(getActivity(), R.layout.pop_layout, null);
+                        popupWindow = new PopupWindow(contentView, width, height);
+                        popupWindow.setOutsideTouchable(true);
+                        popupWindow.setFocusable(true);
+                        int popupWidth = popupWindow.getWidth();
+                        int popupHeight = popupWindow.getHeight();
+                        popupWindow.showAsDropDown(view, (width - popupWidth) / 2, 0);
+                contentView.findViewById(R.id.x).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        popupWindow.dismiss();                  }
+                });
+                       // Toast.makeText(getActivity(), "长按", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                recycleView.setAdapter(recyclerAdapter);
                 adapter.setmOnItemClickListener(new MyRecyclerAdapter.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
                         Intent intent = new Intent(getActivity(), NextActivity.class);
                         intent.putExtra("url", conList.get(position).getUrl());
-                        intent.putExtra("title",conList.get(position).getAuthor_name());
-                        intent.putExtra("content",conList.get(position).getTitle());
-                        intent.putExtra("pic",conList.get(position).getPic());
+                        intent.putExtra("title", conList.get(position).getAuthor_name());
+                        intent.putExtra("content", conList.get(position).getTitle());
+                        intent.putExtra("pic", conList.get(position).getPic());
                         getActivity().startActivity(intent);
                     }
                 });
@@ -158,10 +213,12 @@ public class FragmentModel extends Fragment {
 
             @Override
             public void onFinished() {
-               // readDatabase();
+                // readDatabase();
             }
         });
     }
+
+    private static final int REQUEST_CODE_PICK_CITY = 0;
 
 
     private void readDatabase() {
@@ -215,6 +272,8 @@ public class FragmentModel extends Fragment {
             }
         });
         cursor.close();
+
+
     }
 
     private void initView(View view) {
@@ -236,4 +295,22 @@ public class FragmentModel extends Fragment {
         return fragmentModel;
     }
 
+    //重写onActivityResult方法
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE_PICK_CITY && resultCode == RESULT_OK) {
+            if (data != null) {
+                String city = data.getStringExtra(CityPickerActivity.KEY_PICKED_CITY);
+                //resultTV.setText("当前选择：" + city);
+                MySQLiteOpenHelper helper = new MySQLiteOpenHelper(getActivity());
+                SQLiteDatabase database = helper.getWritableDatabase();
+                ContentValues values = new ContentValues();
+                values.put("titleName", city);
+                database.update("title", values, "uri=?", new String[]{"bd"});
+                Toast.makeText(getActivity(), city, Toast.LENGTH_SHORT).show();
+                getActivity().startActivity(new Intent(getActivity(), MainActivity.class));
+                getActivity().finish();
+            }
+        }
+    }
 }

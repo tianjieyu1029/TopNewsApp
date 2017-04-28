@@ -65,4 +65,6 @@ dependencies {
     compile project(':lib')
     compile 'eu.the4thfloor.volley:com.android.volley:2015.05.28'
     compile project(':xlistviewlibrary')
+    compile 'com.songhang:smart-headerfooter-recyclerview:1.0.1'
+    compile project(':citypicker')
 }

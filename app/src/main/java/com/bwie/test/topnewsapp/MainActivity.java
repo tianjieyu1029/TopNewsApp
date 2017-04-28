@@ -92,7 +92,8 @@ public class MainActivity extends AppCompatActivity {
     private Button download;
     private LinearLayout layout_menu6;
     private Button settingButton;
-
+    private boolean connected;
+    private static final int REQUEST_CODE_PICK_CITY = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -102,12 +103,13 @@ public class MainActivity extends AppCompatActivity {
         ImmersionStatusBar.setStatusBar(this, Color.parseColor("#CE2E2A"));
         //初始化控件
         initView();
-        MySQLiteOpenHelper helper = new MySQLiteOpenHelper(MainActivity.this);
+        MySQLiteOpenHelper helper =  new MySQLiteOpenHelper(MainActivity.this);
         database = helper.getWritableDatabase();
+
         //侧滑
         initSlidingMenu();
         //判断是否有网络
-        boolean connected = NetworkUtils.isConnected();
+        connected = NetworkUtils.isConnected();
         //判断是否第一次进入
         SharedPreferences preferencesHttp = getSharedPreferences("http", MODE_PRIVATE);
         edit = preferencesHttp.edit();
@@ -160,6 +162,12 @@ public class MainActivity extends AppCompatActivity {
         Log.d("title---->", "readDatabase: " + list.size());
         initIndicator(list);
         initFragment(list);
+        //database.close();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
         database.close();
     }
 
@@ -252,9 +260,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //请求数据
+    //改之前uri = news
     private void initData() {
-        new MyXUtils().httpXUtilsPOST(URLUtils.URL_TITLE,
-                "uri", "news", new MyXUtils.MyHttpCallback() {
+        new MyXUtils().httpXUtilsPOST(URLUtils.URL_NEWS_TITLE,
+                "uri", "title", new MyXUtils.MyHttpCallback() {
                     @Override
                     public void onSuccess(String result) {
                         Log.d("这里呢？", "onSuccess: " + result);
@@ -471,6 +480,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
+
         SharedPreferences preferencesLogin = getSharedPreferences("config", MODE_PRIVATE);
         editor = preferencesLogin.edit();
         //flag是判断登录状态
