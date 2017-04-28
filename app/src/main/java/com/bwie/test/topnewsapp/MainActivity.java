@@ -1,7 +1,10 @@
 package com.bwie.test.topnewsapp;
 
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -41,6 +44,7 @@ import com.bwie.test.topnewsapp.slindingactivities.FavoriteActivity;
 import com.bwie.test.topnewsapp.slindingactivities.Off_line_download;
 import com.bwie.test.topnewsapp.slindingactivities.SettingActivity;
 import com.bwie.test.topnewsapp.slindingactivities.ShoppingActivity;
+import com.bwie.test.topnewsapp.utils.ExampleUtil;
 import com.bwie.test.topnewsapp.utils.GsonUtils;
 import com.bwie.test.topnewsapp.utils.ImmersionStatusBar;
 import com.bwie.test.topnewsapp.utils.MySQLiteOpenHelper;
@@ -103,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
         ImmersionStatusBar.setStatusBar(this, Color.parseColor("#CE2E2A"));
         //初始化控件
         initView();
+        registerMessageReceiver();
         MySQLiteOpenHelper helper =  new MySQLiteOpenHelper(MainActivity.this);
         database = helper.getWritableDatabase();
 
@@ -168,6 +173,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        isForeground = false;
         database.close();
     }
 
@@ -480,7 +486,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-
+        isForeground = true;
         SharedPreferences preferencesLogin = getSharedPreferences("config", MODE_PRIVATE);
         editor = preferencesLogin.edit();
         //flag是判断登录状态
@@ -589,4 +595,46 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onKeyUp(keyCode, event);
     }
+//========================================广播=================================
+    //for receive customer msg from jpush server
+    private MessageReceiver mMessageReceiver;
+    public static final String MESSAGE_RECEIVED_ACTION = "com.bwie.test.topnewsapp.MESSAGE_RECEIVED_ACTION";
+    public static final String KEY_TITLE = "title";
+    public static final String KEY_MESSAGE = "message";
+    public static final String KEY_EXTRAS = "extras";
+
+    public void registerMessageReceiver() {
+        mMessageReceiver = new MessageReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
+        filter.addAction(MESSAGE_RECEIVED_ACTION);
+        registerReceiver(mMessageReceiver, filter);
+    }
+
+    public static boolean isForeground = false;
+    public class MessageReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (MESSAGE_RECEIVED_ACTION.equals(intent.getAction())) {
+                String messge = intent.getStringExtra(KEY_MESSAGE);
+                String extras = intent.getStringExtra(KEY_EXTRAS);
+                StringBuilder showMsg = new StringBuilder();
+                showMsg.append(KEY_MESSAGE + " : " + messge + "\n");
+                if (!ExampleUtil.isEmpty(extras)) {
+                    showMsg.append(KEY_EXTRAS + " : " + extras + "\n");
+                }
+
+            }
+
+        }
+    }
+    @Override
+    protected void onDestroy() {
+        unregisterReceiver(mMessageReceiver);
+        super.onDestroy();
+    }
+
+
+
 }

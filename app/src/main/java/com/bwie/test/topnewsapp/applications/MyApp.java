@@ -9,6 +9,7 @@ import com.umeng.socialize.UMShareAPI;
 
 import org.xutils.x;
 
+import cn.jpush.android.api.JPushInterface;
 import cn.smssdk.SMSSDK;
 
 /**
@@ -32,5 +33,7 @@ public class MyApp extends Application {
         Config.DEBUG = true;
         SMSSDK.initSDK(this, "1cf72a14a34ed", "6891b8254a2fc86bb0becbe07ff72987");
         UMShareAPI.get(this);
+        JPushInterface.setDebugMode(true);
+        JPushInterface.init(this);
     }
 }

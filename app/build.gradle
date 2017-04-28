@@ -67,4 +67,6 @@ dependencies {
     compile project(':xlistviewlibrary')
     compile 'com.songhang:smart-headerfooter-recyclerview:1.0.1'
     compile project(':citypicker')
+    compile files('libs/jpush-android_v3.0.5.jar')
+    compile files('libs/jcore-android_v1.1.2.jar')
 }
