@@ -23,31 +23,33 @@ import java.util.regex.Pattern;
 import cn.smssdk.EventHandler;
 import cn.smssdk.SMSSDK;
 
+import static com.mob.tools.utils.ResHelper.getStringRes;
+
 
 public class CAPTCHAActivity extends AppCompatActivity implements View.OnClickListener {
 
 
     public int T = 60; //倒计时时长
     boolean flag = true;
-    private Handler mHandler = new Handler() {
+   /* private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-           /* if (msg.what == 1)
+           *//* if (msg.what == 1)
                 Toast.makeText(CAPTCHAActivity.this, "回调完成", Toast.LENGTH_SHORT).show();
-            else*/
+            else*//*
             if (msg.what == 2) {
                 flag = true;
-            } /*else if (msg.what == 3) {
+            } *//*else if (msg.what == 3) {
                 Toast.makeText(CAPTCHAActivity.this, "获取验证码成功", Toast.LENGTH_SHORT).show();
             } else if (msg.what == 4) {
                 Toast.makeText(CAPTCHAActivity.this, "返回支持发送国家验证码", Toast.LENGTH_SHORT).show();
-            }*//*else{
+            }*//**//*else{
                 Toast.makeText(CAPTCHAActivity.this, "验证码错误", Toast.LENGTH_SHORT).show();
-            }*/
+            }*//*
         }
 
-    };
+    };*/
 
 
     private String phone;
@@ -78,7 +80,7 @@ public class CAPTCHAActivity extends AppCompatActivity implements View.OnClickLi
         phone = intent.getStringExtra("phone");
         tv_phone_register_number_captcha.setText(phone);
         sendCAPTCHA(phone);
-        new Thread(new MyCountDownTimer()).start();
+       // new Thread(new MyCountDownTimer()).start();
     }
 
     private void initView() {
@@ -135,6 +137,7 @@ public class CAPTCHAActivity extends AppCompatActivity implements View.OnClickLi
         }
         // TODO validate success, do something
         SMSSDK.submitVerificationCode("86", phone, code);
+        flag = false;
 
     }
     //判断邮箱
@@ -149,13 +152,14 @@ public class CAPTCHAActivity extends AppCompatActivity implements View.OnClickLi
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_resend_captcha:
-                new Thread(new MyCountDownTimer()).start();
+                //new Thread(new MyCountDownTimer()).start();
+               // SMSSDK.getVerificationCode("86",phone);
                 sendCAPTCHA(phone);
 
                 break;
             case R.id.btn_login_captcha:
                 submit();
-                if (flag){
+               /* if (flag){
                     Toast.makeText(CAPTCHAActivity.this, "提交验证码成功", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(CAPTCHAActivity.this, UserInfoSetActivity.class);
                     intent.putExtra("phone", phone);
@@ -165,7 +169,7 @@ public class CAPTCHAActivity extends AppCompatActivity implements View.OnClickLi
                     finish();
                 }else{
                     Toast.makeText(CAPTCHAActivity.this, "验证码错误", Toast.LENGTH_SHORT).show();
-                }
+                }*/
                 break;
         }
     }
@@ -179,24 +183,11 @@ public class CAPTCHAActivity extends AppCompatActivity implements View.OnClickLi
         eh = new EventHandler() {
             @Override
             public void afterEvent(int event, int result, Object data) {
-                if (result == SMSSDK.RESULT_COMPLETE) {
-                    mHandler.sendEmptyMessage(1);
-                    //回调完成
-                    if (event == SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE) {
-                        //提交验证码成功
-                        mHandler.sendEmptyMessage(2);
-
-                    } else if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE) {
-                        //获取验证码成功
-                        mHandler.sendEmptyMessage(3);
-
-                    } else if (event == SMSSDK.EVENT_GET_SUPPORTED_COUNTRIES) {
-                        //返回支持发送验证码的国家列表
-                        mHandler.sendEmptyMessage(4);
-                    }
-                } else {
-                    ((Throwable) data).printStackTrace();
-                }
+                Message msg = new Message();
+                msg.arg1 = event;
+                msg.arg2 = result;
+                msg.obj = data;
+                handler.sendMessage(msg);
             }
         };
         // SMSSDK.initSDK(this, "您的appkey", "您的appsecret");//初始化
@@ -206,7 +197,77 @@ public class CAPTCHAActivity extends AppCompatActivity implements View.OnClickLi
     }
 
 
-    class MyCountDownTimer implements Runnable {
+    private void reminderText() {
+        handlerText.sendEmptyMessageDelayed(1, 1000);
+    }
+
+    Handler handler=new Handler(){
+
+        @Override
+        public void handleMessage(Message msg) {
+            // TODO Auto-generated method stub
+            super.handleMessage(msg);
+            int event = msg.arg1;
+            int result = msg.arg2;
+            Object data = msg.obj;
+            //Log.e("event", "event="+event);
+            if (result == SMSSDK.RESULT_COMPLETE) {
+                //短信注册成功后，返回MainActivity,然后提示新好友
+                if (event == SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE) {//提交验证码成功,验证通过
+                    Toast.makeText(getApplicationContext(), "验证码校验成功", Toast.LENGTH_SHORT).show();
+                    handlerText.sendEmptyMessage(2);
+                } else if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE){//服务器验证码发送成功
+                    reminderText();
+                    Toast.makeText(getApplicationContext(), "验证码已经发送", Toast.LENGTH_SHORT).show();
+                }else if (event ==SMSSDK.EVENT_GET_SUPPORTED_COUNTRIES){//返回支持发送验证码的国家列表
+                    Toast.makeText(getApplicationContext(), "获取国家列表成功", Toast.LENGTH_SHORT).show();
+                }
+            }
+            else {
+                if(flag){
+                    Toast.makeText(CAPTCHAActivity.this, "验证码获取失败，请重新获取", Toast.LENGTH_SHORT).show();
+                }else{
+                    ((Throwable) data).printStackTrace();
+                    int resId = getStringRes(CAPTCHAActivity.this, "smssdk_network_error");
+                    Toast.makeText(CAPTCHAActivity.this, "验证码错误", Toast.LENGTH_SHORT).show();
+                    if (resId > 0) {
+                        Toast.makeText(CAPTCHAActivity.this, resId, Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+            }
+
+        }
+
+    };
+
+    Handler handlerText =new Handler(){
+        public void handleMessage(Message msg) {
+            if(msg.what==1){
+                if(T>0){
+                    btn_resend_captcha.setClickable(false);
+                    btn_resend_captcha.setText("重新发送 " + T);
+                    btn_resend_captcha.setTextColor(Color.GRAY);
+                    T--;
+                    handlerText.sendEmptyMessageDelayed(1, 1000);
+                }else{
+                    btn_resend_captcha.setClickable(true);
+                    btn_resend_captcha.setText("重新发送");
+                    btn_resend_captcha.setTextColor(Color.parseColor("#ff0000"));
+                    T = 59;
+                }
+            }else{
+                Intent intent = new Intent(CAPTCHAActivity.this, UserInfoSetActivity.class);
+                intent.putExtra("phone", phone);
+                intent.putExtra("pwd", pwd);
+                intent.putExtra("email",email);
+                startActivity(intent);
+                finish();
+            }
+        }
+    };
+
+   /* class MyCountDownTimer implements Runnable {
 
         @Override
         public void run() {
@@ -240,7 +301,7 @@ public class CAPTCHAActivity extends AppCompatActivity implements View.OnClickLi
             });
             T = 60; //最后再恢复倒计时时长
         }
-    }
+    }*/
 
     @Override
     protected void onDestroy() {
